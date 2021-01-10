@@ -15,7 +15,7 @@ namespace CelticKnotwork1
             InitializeComponent();
             Graphics g = this.CreateGraphics();
 
-            knotwork = KnotworkFactory.SampleKnotwork1(1);
+            knotwork = KnotworkFactory.SampleKnotwork1(4);
             transform = new SimpleTransform { XOffset = 50, XScale = 20, YOffset = 30, YScale = 20 };
 
             this.Paint += Form1_Paint;
@@ -32,6 +32,9 @@ namespace CelticKnotwork1
         private bool ColorFlipper = true;
 
         GridCoordinates traversalPoint = new GridCoordinates { Row = 0, Col = 1 };
+
+        private LineSegment currentlyHighlighted = null;
+
         private void Timer1_Tick(object sender, EventArgs e)
         {
             Console.WriteLine(traversalPoint);
@@ -45,19 +48,19 @@ namespace CelticKnotwork1
             Brush brush = new SolidBrush(Color.Black);
             g.DrawString($"({traversalPoint.Row},{traversalPoint.Col})", DefaultFont, brush, new PointF(10.0f, 10.0f));
 
-            //IEnumerable<LineStyle> linesIterator = knotwork.GetAllLines(traversalPoint);
             IEnumerable<LineSegment> linesIterator = knotwork.GetAllLines(traversalPoint);
-            //IEnumerator<LineStyle> lines = linesIterator.GetEnumerator();
             IEnumerator<LineSegment> lines = linesIterator.GetEnumerator();
             if (lines.MoveNext())
             {
                 Pen p = new Pen(Color.Red); // new Pen(Color.Goldenrod);
 
-                //TODO!~ Also check the incoming lines....
-                //  And, you need to have a direction. The current/previous line affects the direction.
-                //LineStyle cur = lines.Current;
-                //LineSegment curClass = GetClassFromEnum(cur);
                 LineSegment curClass = lines.Current;
+                if (curClass == currentlyHighlighted)
+                {
+                    lines.MoveNext();
+                    curClass = lines.Current;
+                }
+
                 if (curClass == null)
                 {
                     //TODO!+ Assert warning/error
@@ -65,11 +68,10 @@ namespace CelticKnotwork1
                 else
                 {
                     curClass.Paint(g, p, traversalPoint, transform, true);
+                    currentlyHighlighted = curClass;
                 }
 
-                //DrawLine(g, p, cur, transform, traversalPoint.Row, traversalPoint.Col);
-
-                traversalPoint = curClass.Target(traversalPoint);
+                traversalPoint = currentlyHighlighted.Target(traversalPoint);
 
                 //TODO!+ Hop on to the next segment...
             }
@@ -94,12 +96,9 @@ namespace CelticKnotwork1
                     }
 
                     // Draw the lines (both arced and straight), if there are any.
-                    //IEnumerable<LineStyle> lines = knotwork.GetOutgoingLines(row, col);
                     IEnumerable<LineSegment> lines = knotwork.GetOutgoingLines(row, col);
-                    //foreach (LineStyle currentLine in lines)
                     foreach (LineSegment currentLine in lines)
                     {
-                        //DrawLine(g, altPen, currentLine, transform, row, col);
                         currentLine.Paint(g, altPen, new GridCoordinates { Row = row, Col = col }, transform, extraLines);
                     }
                 }

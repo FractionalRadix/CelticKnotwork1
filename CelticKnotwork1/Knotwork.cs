@@ -8,16 +8,13 @@ namespace CelticKnotwork1
     {
         private class GridPoint
         {
-            //private readonly List<LineStyle> Lines = new List<LineStyle>();
             private readonly List<LineSegment> Lines = new List<LineSegment>();
 
-            //public void Add(LineStyle line)
             public void Add(LineSegment line)
             {
                 Lines.Add(line);
             }
 
-            //public IEnumerable<LineStyle> Get()
             public IEnumerable<LineSegment> Get()
             {
                 return Lines;
@@ -43,7 +40,6 @@ namespace CelticKnotwork1
             }
         }
 
-        //public void AddLine(int row, int col, LineStyle line)
         public void AddLine(int row, int col, LineSegment line)
         {
             if (row < 0 || row >= Rows || col < 0 || col >= Cols)
@@ -56,13 +52,10 @@ namespace CelticKnotwork1
         /// <summary>
         /// Given a point on the grid, find all the lines connected to that point - whether outgoing or incoming.
         /// </summary>
-        /// <param name="row"></param>
-        /// <param name="col"></param>
-        /// <returns></returns>
-        //public IEnumerable<LineStyle> GetAllLines(GridCoordinates p)
+        /// <param name="p">Coordinates of a point in the grid.</param>
+        /// <returns>A list of line segments that start or end in the given point.</returns>
         public IEnumerable<LineSegment> GetAllLines(GridCoordinates p)
         {
-            //var res = new List<LineStyle>();
             var res = new List<LineSegment>();
 
             // As an optimization, we don't search the entire knotwork.
@@ -82,7 +75,6 @@ namespace CelticKnotwork1
                         // So all lines defined here are outgoing, and are relevant.
                         // Add them all to the result.
                         var iter = this.gridPoints[p.Row, p.Col].Get();
-                        //foreach (LineStyle currentLine in iter)
                         foreach (LineSegment currentLine in iter)
                         {
                             res.Add(currentLine);
@@ -96,17 +88,6 @@ namespace CelticKnotwork1
                         var iter = this.gridPoints[p.Row, p.Col].Get().GetEnumerator();
                         while (iter.MoveNext())
                         {
-                            /*
-                            LineStyle currentLine = iter.Current;
-                            
-                            Tuple<int, int> target = Target(currentLine, currentRow, currentCol);
-
-                            if (target.Item1 == p.Row && target.Item2 == p.Col)
-                            {
-                                res.Add(currentLine);
-                            }
-                            */
-
                             LineSegment currentLine = iter.Current;
                             GridCoordinates target = currentLine.Target(new GridCoordinates { Row = currentRow, Col = currentCol });
                             if (target.Row == p.Row && target.Col == p.Col)
@@ -121,50 +102,10 @@ namespace CelticKnotwork1
             return res;
         }
 
-        //public IEnumerable<LineStyle> GetOutgoingLines(int row, int col)
         public IEnumerable<LineSegment> GetOutgoingLines(int row, int col)
         {
             var lines = this.gridPoints[row, col].Get();
             return lines;
         }
-
-        /*
-        Tuple<int,int> Target(LineStyle line, int row, int col)
-        {
-            Tuple<int, int> res;
-            switch (line)
-            {
-                case LineStyle.diagonalForwardUp:
-                    res = new Tuple<int,int>(row - 1, col + 1);
-                    break;
-                case LineStyle.diagonalForwardDown:
-                    res = new Tuple<int, int>(row + 1, col + 1);
-                    break;
-                case LineStyle.diagonalBackwardUp:
-                    res = new Tuple<int, int>(row - 1, col - 1);
-                    break;
-                case LineStyle.diagonalBackwardDown:
-                    res = new Tuple<int, int>(row + 1, col - 1);
-                    break;
-                case LineStyle.roundedDownArcingLeft:
-                    res = new Tuple<int, int>(row + 2, col);
-                    break;
-                case LineStyle.roundedDownArcingRight:
-                    res = new Tuple<int, int>(row + 2, col);
-                    break;
-                case LineStyle.roundedForwardArcingUp:
-                    res = new Tuple<int, int>(row - 2, col);
-                    break;
-                case LineStyle.roundedForwardArcingDown:
-                    res = new Tuple<int, int>(row - 2, col);
-                    break;
-                default:
-                    res = null;
-                    break;
-            }
-            return res;
-        }
-        */
     }
-
 }
