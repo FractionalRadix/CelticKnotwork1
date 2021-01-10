@@ -13,6 +13,11 @@ namespace CelticKnotwork1
     {
         public abstract void Paint(Graphics g, Pen p, GridCoordinates start, SimpleTransform transform, bool extraLines);
 
+        /// <summary>
+        /// Given a point on the grid, determine the grid point that this line segment would connect it to.
+        /// </summary>
+        public abstract GridCoordinates Target(GridCoordinates source);
+
         private Rectangle CalculateBoundingRectangle(Ellipse ellipse)
         {
             Size sizeOfBoundingRect = new Size((int)(2.0 * ellipse.XRadius), (int)(2.0 * ellipse.YRadius));
@@ -50,6 +55,11 @@ namespace CelticKnotwork1
                 g.DrawLine(pen, xCoor + 4, yCoor, xCoor + transform.XScale + 4, yCoor - transform.YScale);
             }
         }
+
+        public override GridCoordinates Target(GridCoordinates source)
+        {
+            return new GridCoordinates { Row = source.Row - 1, Col = source.Col + 1 };
+        }
     }
 
     class DiagonalForwardDown : LineSegment
@@ -65,6 +75,11 @@ namespace CelticKnotwork1
                 g.DrawLine(pen, xCoor - 4, yCoor, xCoor + transform.XScale - 4, yCoor + transform.YScale);
                 g.DrawLine(pen, xCoor + 4, yCoor, xCoor + transform.XScale + 4, yCoor + transform.YScale);
             }
+        }
+
+        public override GridCoordinates Target(GridCoordinates source)
+        {
+            return new GridCoordinates { Row = source.Row + 1, Col = source.Col + 1 };
         }
     }
 
@@ -83,6 +98,10 @@ namespace CelticKnotwork1
             }
         }
 
+        public override GridCoordinates Target(GridCoordinates source)
+        {
+            return new GridCoordinates { Row = source.Row - 1, Col = source.Col - 1 };
+        }
     }
 
     class DiagonalBackwardDown : LineSegment
@@ -100,6 +119,10 @@ namespace CelticKnotwork1
             }
         }
 
+        public override GridCoordinates Target(GridCoordinates source)
+        {
+            return new GridCoordinates { Row = source.Row + 1, Col = source.Col - 1 };
+        }
     }
 
     class DownwardArcingLeft : LineSegment
@@ -119,6 +142,11 @@ namespace CelticKnotwork1
 
             DrawArcs(g, pen, extraLines, ellipse, 135, 90);
         }
+
+        public override GridCoordinates Target(GridCoordinates source)
+        {
+            return new GridCoordinates { Row = source.Row + 2, Col = source.Col };
+        }
     }
 
     class DownwardArcingRight : LineSegment
@@ -137,6 +165,11 @@ namespace CelticKnotwork1
             Ellipse ellipse = new Ellipse(xCenterOfRect, yCenterOfRect, xRadius, yRadius);
 
             DrawArcs(g, pen, extraLines, ellipse, -45, 90);
+        }
+
+        public override GridCoordinates Target(GridCoordinates source)
+        {
+            return new GridCoordinates { Row = source.Row + 2, Col = source.Col };
         }
     }
 
@@ -158,6 +191,10 @@ namespace CelticKnotwork1
             DrawArcs(g, pen, extraLines, ellipse, 225, 90);
         }
 
+        public override GridCoordinates Target(GridCoordinates source)
+        {
+            return new GridCoordinates { Row = source.Row, Col = source.Col + 2 };
+        }
     }
 
     class ForwardArcingDown : LineSegment
@@ -178,5 +215,9 @@ namespace CelticKnotwork1
             DrawArcs(g, pen, extraLines, ellipse, 45, 90);
         }
 
+        public override GridCoordinates Target(GridCoordinates source)
+        {
+            return new GridCoordinates { Row = source.Row, Col = source.Col + 2 };
+        }
     }
 }

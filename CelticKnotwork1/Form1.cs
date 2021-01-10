@@ -5,14 +5,6 @@ using System.Windows.Forms;
 
 namespace CelticKnotwork1
 {
-    enum LineStyle
-    {
-        diagonalForwardUp, diagonalForwardDown,
-        diagonalBackwardUp, diagonalBackwardDown,
-        roundedDownArcingLeft, roundedDownArcingRight, 
-        roundedForwardArcingUp, roundedForwardArcingDown
-    };
-
     public partial class Form1 : Form
     {
         private readonly Knotwork knotwork;
@@ -53,51 +45,32 @@ namespace CelticKnotwork1
             Brush brush = new SolidBrush(Color.Black);
             g.DrawString($"({traversalPoint.Row},{traversalPoint.Col})", DefaultFont, brush, new PointF(10.0f, 10.0f));
 
-            IEnumerable<LineStyle> linesIterator = knotwork.GetAllLines(traversalPoint);
-            IEnumerator<LineStyle> lines = linesIterator.GetEnumerator();
+            //IEnumerable<LineStyle> linesIterator = knotwork.GetAllLines(traversalPoint);
+            IEnumerable<LineSegment> linesIterator = knotwork.GetAllLines(traversalPoint);
+            //IEnumerator<LineStyle> lines = linesIterator.GetEnumerator();
+            IEnumerator<LineSegment> lines = linesIterator.GetEnumerator();
             if (lines.MoveNext())
             {
                 Pen p = new Pen(Color.Red); // new Pen(Color.Goldenrod);
 
                 //TODO!~ Also check the incoming lines....
                 //  And, you need to have a direction. The current/previous line affects the direction.
-                LineStyle cur = lines.Current;
-
-                DrawLine(g, p, cur, transform, traversalPoint.Row, traversalPoint.Col);
-
-                switch (cur)
+                //LineStyle cur = lines.Current;
+                //LineSegment curClass = GetClassFromEnum(cur);
+                LineSegment curClass = lines.Current;
+                if (curClass == null)
                 {
-                    case LineStyle.diagonalForwardUp:
-                        traversalPoint.Col++;
-                        traversalPoint.Row--;
-                        break;
-                    case LineStyle.diagonalForwardDown:
-                        traversalPoint.Col++;
-                        traversalPoint.Row++;
-                        break;
-                    case LineStyle.diagonalBackwardUp:
-                        traversalPoint.Col--;
-                        traversalPoint.Row--;
-                        break;
-                    case LineStyle.diagonalBackwardDown:
-                        traversalPoint.Col--;
-                        traversalPoint.Row++;
-                        break;
-                    case LineStyle.roundedDownArcingLeft:
-                        traversalPoint.Row++;
-                        break;
-                    case LineStyle.roundedDownArcingRight:
-                        traversalPoint.Row++;
-                        break;
-                    case LineStyle.roundedForwardArcingUp:
-                        traversalPoint.Col++;
-                        break;
-                    case LineStyle.roundedForwardArcingDown:
-                        traversalPoint.Col++;
-                        break;
-                    default:
-                        break;
+                    //TODO!+ Assert warning/error
                 }
+                else
+                {
+                    curClass.Paint(g, p, traversalPoint, transform, true);
+                }
+
+                //DrawLine(g, p, cur, transform, traversalPoint.Row, traversalPoint.Col);
+
+                traversalPoint = curClass.Target(traversalPoint);
+
                 //TODO!+ Hop on to the next segment...
             }
 
@@ -106,6 +79,7 @@ namespace CelticKnotwork1
         void DrawKnotwork(Graphics g, Pen altPen, Knotwork knotwork, SimpleTransform transform)
         {
             bool drawGrid = false;
+            bool extraLines = true;
 
             for (int col = 0; col < knotwork.Cols; col++)
             {
@@ -120,10 +94,13 @@ namespace CelticKnotwork1
                     }
 
                     // Draw the lines (both arced and straight), if there are any.
-                    IEnumerable<LineStyle> lines = knotwork.GetOutgoingLines(row, col);
-                    foreach (LineStyle currentLine in lines)
+                    //IEnumerable<LineStyle> lines = knotwork.GetOutgoingLines(row, col);
+                    IEnumerable<LineSegment> lines = knotwork.GetOutgoingLines(row, col);
+                    //foreach (LineStyle currentLine in lines)
+                    foreach (LineSegment currentLine in lines)
                     {
-                        DrawLine(g, altPen, currentLine, transform, row, col);
+                        //DrawLine(g, altPen, currentLine, transform, row, col);
+                        currentLine.Paint(g, altPen, new GridCoordinates { Row = row, Col = col }, transform, extraLines);
                     }
                 }
             }
@@ -158,72 +135,6 @@ namespace CelticKnotwork1
 
                 Rectangle innerBoundingRect = CalculateBoundingRectangle(ellipse.increaseRadius(-4));
                 g.DrawArc(myPen, innerBoundingRect, startAngle, sweepAngle);
-            }
-        }
-
-        private void DrawLine(Graphics g, Pen myPen, LineStyle current, SimpleTransform tf, int row, int col)
-        {
-            bool extraLines = true;
-
-            //TODO!~ We're in the process of using the LineSegment class and its children, instead of the enum.
-            LineSegment tmp = null;
-            switch (current)
-            {
-                case LineStyle.roundedDownArcingLeft:
-                    {
-                        tmp = new DownwardArcingLeft();
-                        //tmp.Paint(g, myPen, new GridCoordinates { Col = col, Row = row }, tf, extraLines);
-                    }
-                    break;
-                case LineStyle.roundedDownArcingRight:
-                    {
-                        tmp = new DownwardArcingRight();
-                        //tmp.Paint(g, myPen, new GridCoordinates { Col = col, Row = row }, tf, extraLines);
-                    }
-                    break;
-                case LineStyle.roundedForwardArcingUp:
-                    {
-                        tmp = new ForwardArcingUp();
-                        //tmp.Paint(g, myPen, new GridCoordinates { Col = col, Row = row }, tf, extraLines);
-                    }
-                    break;
-                case LineStyle.roundedForwardArcingDown:
-                    {
-                        tmp = new ForwardArcingDown();
-                        //tmp.Paint(g, myPen, new GridCoordinates { Col = col, Row = row }, tf, extraLines);
-                    }
-                    break;
-                case LineStyle.diagonalForwardDown:
-                    {
-                        tmp = new DiagonalForwardDown();
-                        //tmp.Paint(g, myPen, new GridCoordinates { Col = col, Row = row }, tf, extraLines);
-                    }
-                    break;
-                case LineStyle.diagonalForwardUp:
-                    {
-                        tmp = new DiagonalForwardUp();
-                        //tmp.Paint(g, myPen, new GridCoordinates { Col = col, Row = row }, tf, extraLines);
-                    }
-                    break;
-                case LineStyle.diagonalBackwardDown:
-                    {
-                        tmp = new DiagonalBackwardDown();
-                        //tmp.Paint(g, myPen, new GridCoordinates { Col = col, Row = row }, tf, extraLines);
-                    }
-                    break;
-                case LineStyle.diagonalBackwardUp:
-                    {
-                        tmp = new DiagonalBackwardUp();
-                        //tmp.Paint(g, myPen, new GridCoordinates { Col = col, Row = row }, tf, extraLines);
-                    }
-                    break;
-                default:
-                    //TODO?+ Issue a warning?
-                    break;
-            }
-            if (tmp != null)
-            {
-                tmp.Paint(g, myPen, new GridCoordinates { Col = col, Row = row }, tf, extraLines);
             }
         }
     }

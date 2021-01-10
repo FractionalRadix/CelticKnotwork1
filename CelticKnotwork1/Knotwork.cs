@@ -8,14 +8,17 @@ namespace CelticKnotwork1
     {
         private class GridPoint
         {
-            private readonly List<LineStyle> Lines = new List<LineStyle>();
+            //private readonly List<LineStyle> Lines = new List<LineStyle>();
+            private readonly List<LineSegment> Lines = new List<LineSegment>();
 
-            public void Add(LineStyle line)
+            //public void Add(LineStyle line)
+            public void Add(LineSegment line)
             {
                 Lines.Add(line);
             }
 
-            public IEnumerable<LineStyle> Get()
+            //public IEnumerable<LineStyle> Get()
+            public IEnumerable<LineSegment> Get()
             {
                 return Lines;
             }
@@ -40,7 +43,8 @@ namespace CelticKnotwork1
             }
         }
 
-        public void AddLine(int row, int col, LineStyle line)
+        //public void AddLine(int row, int col, LineStyle line)
+        public void AddLine(int row, int col, LineSegment line)
         {
             if (row < 0 || row >= Rows || col < 0 || col >= Cols)
             {
@@ -55,9 +59,11 @@ namespace CelticKnotwork1
         /// <param name="row"></param>
         /// <param name="col"></param>
         /// <returns></returns>
-        public IEnumerable<LineStyle> GetAllLines(GridCoordinates p)
+        //public IEnumerable<LineStyle> GetAllLines(GridCoordinates p)
+        public IEnumerable<LineSegment> GetAllLines(GridCoordinates p)
         {
-            var res = new List<LineStyle>();
+            //var res = new List<LineStyle>();
+            var res = new List<LineSegment>();
 
             // As an optimization, we don't search the entire knotwork.
             // Since every line spans at most 2 points, we look only at the points that are at most 2 points away from (row,col).
@@ -76,7 +82,8 @@ namespace CelticKnotwork1
                         // So all lines defined here are outgoing, and are relevant.
                         // Add them all to the result.
                         var iter = this.gridPoints[p.Row, p.Col].Get();
-                        foreach (LineStyle currentLine in iter)
+                        //foreach (LineStyle currentLine in iter)
+                        foreach (LineSegment currentLine in iter)
                         {
                             res.Add(currentLine);
                         }
@@ -89,10 +96,20 @@ namespace CelticKnotwork1
                         var iter = this.gridPoints[p.Row, p.Col].Get().GetEnumerator();
                         while (iter.MoveNext())
                         {
+                            /*
                             LineStyle currentLine = iter.Current;
+                            
                             Tuple<int, int> target = Target(currentLine, currentRow, currentCol);
 
                             if (target.Item1 == p.Row && target.Item2 == p.Col)
+                            {
+                                res.Add(currentLine);
+                            }
+                            */
+
+                            LineSegment currentLine = iter.Current;
+                            GridCoordinates target = currentLine.Target(new GridCoordinates { Row = currentRow, Col = currentCol });
+                            if (target.Row == p.Row && target.Col == p.Col)
                             {
                                 res.Add(currentLine);
                             }
@@ -104,12 +121,14 @@ namespace CelticKnotwork1
             return res;
         }
 
-        public IEnumerable<LineStyle> GetOutgoingLines(int row, int col)
+        //public IEnumerable<LineStyle> GetOutgoingLines(int row, int col)
+        public IEnumerable<LineSegment> GetOutgoingLines(int row, int col)
         {
             var lines = this.gridPoints[row, col].Get();
             return lines;
         }
 
+        /*
         Tuple<int,int> Target(LineStyle line, int row, int col)
         {
             Tuple<int, int> res;
@@ -145,6 +164,7 @@ namespace CelticKnotwork1
             }
             return res;
         }
+        */
     }
 
 }
