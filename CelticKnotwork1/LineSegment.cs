@@ -125,7 +125,7 @@ namespace CelticKnotwork1
         }
     }
 
-    class DownwardArcingLeft : LineSegment
+    class VerticalArcingLeft : LineSegment
     {
         public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, bool extraLines)
         {
@@ -149,7 +149,7 @@ namespace CelticKnotwork1
         }
     }
 
-    class DownwardArcingRight : LineSegment
+    class VerticalArcingRight : LineSegment
     {
         public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, bool extraLines)
         {
@@ -173,7 +173,7 @@ namespace CelticKnotwork1
         }
     }
 
-    class ForwardArcingUp : LineSegment
+    class HorizontalArcingUp : LineSegment
     {
         public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, bool extraLines)
         {
@@ -197,7 +197,7 @@ namespace CelticKnotwork1
         }
     }
 
-    class ForwardArcingDown : LineSegment
+    class HorizontalArcingDown : LineSegment
     {
         public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, bool extraLines)
         {

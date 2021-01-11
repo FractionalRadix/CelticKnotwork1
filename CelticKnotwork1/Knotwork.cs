@@ -1,43 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace CelticKnotwork1
 {
     class Knotwork
     {
-        private class GridPoint
+        private class GridConnection
         {
-            private readonly List<LineSegment> Lines = new List<LineSegment>();
+            public GridCoordinates Source { set; get; }
+            public LineSegment Connector { set; get; }
 
-            public void Add(LineSegment line)
+            public GridCoordinates Target( )
             {
-                Lines.Add(line);
-            }
-
-            public IEnumerable<LineSegment> Get()
-            {
-                return Lines;
+                return Connector.Target(Source);
             }
         }
+        private List<GridConnection> Connections = new List<GridConnection>();
+
 
         public int Rows { get; private set; }
         public int Cols { get; private set; }
-        GridPoint[,] gridPoints;
 
         public Knotwork(int rows, int cols)
         {
             this.Rows = rows;
             this.Cols = cols;
-
-            gridPoints = new GridPoint[Rows, Cols];
-            for (int col = 0; col < Cols; col++)
-            {
-                for (int row = 0; row < Rows; row++)
-                {
-                    gridPoints[row, col] = new GridPoint();
-                }
-            }
         }
 
         public void AddLine(int row, int col, LineSegment line)
@@ -46,66 +35,55 @@ namespace CelticKnotwork1
             {
                 return; //TODO?+ Issue a warning?
             }
-            gridPoints[row, col].Add(line);
+
+            GridCoordinates source = new GridCoordinates { Row = row, Col = col };
+            GridConnection newConnection = new GridConnection { Source = source, Connector = line };
+            Connections.Add(newConnection);
         }
 
-        /// <summary>
-        /// Given a point on the grid, find all the lines connected to that point - whether outgoing or incoming.
-        /// </summary>
-        /// <param name="p">Coordinates of a point in the grid.</param>
-        /// <returns>A list of line segments that start or end in the given point.</returns>
-        public IEnumerable<LineSegment> GetAllLines(GridCoordinates p)
+        public IEnumerable<Tuple<GridCoordinates,LineSegment>> GetAllLines()
         {
-            var res = new List<LineSegment>();
+            return Connections.Select(x => new Tuple<GridCoordinates,LineSegment>(x.Source, x.Connector));
+        }
 
-            // As an optimization, we don't search the entire knotwork.
-            // Since every line spans at most 2 points, we look only at the points that are at most 2 points away from (row,col).
-            int minRow = Math.Max(0, p.Row - 2);
-            int maxRow = Math.Min(Rows - 1, p.Row + 2);
-            int minCol = Math.Max(0, p.Col - 2);
-            int maxCol = Math.Min(Cols - 1, p.Col + 2);
+        public IEnumerable<GridCoordinates> GetConnectionsFor(GridCoordinates coor)
+        {
+            var outgoingConnections = Connections
+                .FindAll(x => x.Source.Equals(coor))
+                .Select(x => x.Target())
+                ;
+            var incomingConnections = Connections
+                .FindAll(x => x.Target().Equals(coor))
+                .Select(x => x.Source)
+                ;
 
-            for (int currentRow = minRow; currentRow < maxRow; currentRow++)
-            {
-                for (int currentCol = minCol; currentCol < maxCol; currentCol++)
-                {
-                    if (currentRow == p.Row && currentCol == p.Col)
-                    {
-                        // This is the grid point we came from: (row,col).
-                        // So all lines defined here are outgoing, and are relevant.
-                        // Add them all to the result.
-                        var iter = this.gridPoints[p.Row, p.Col].Get();
-                        foreach (LineSegment currentLine in iter)
-                        {
-                            res.Add(currentLine);
-                        }
-                    }
-                    else
-                    {
-                        // This is one of the neighbouring grid points.
-                        // Check if it has any lines connecting to (row,col).
-                        // If so, add them to the result.
-                        var iter = this.gridPoints[p.Row, p.Col].Get().GetEnumerator();
-                        while (iter.MoveNext())
-                        {
-                            LineSegment currentLine = iter.Current;
-                            GridCoordinates target = currentLine.Target(new GridCoordinates { Row = currentRow, Col = currentCol });
-                            if (target.Row == p.Row && target.Col == p.Col)
-                            {
-                                res.Add(currentLine);
-                            }
-                        }
-                    }
-                }
-            }
+            var res = outgoingConnections.Concat(incomingConnections);
 
             return res;
         }
 
-        public IEnumerable<LineSegment> GetOutgoingLines(int row, int col)
+        /// <summary>
+        /// Find the line segment that connects points p1 and p2.
+        /// Note that two points should never be connected by more than one line segment.
+        /// </summary>
+        /// <param name="p1">First point on the grid.</param>
+        /// <param name="p2">Second point on the grid.</param>
+        /// <returns>The connector that connects p1 and p2, if it exists; <code>null</code> otherwise.</returns>
+        public LineSegment GetLine(GridCoordinates p1, GridCoordinates p2)
         {
-            var lines = this.gridPoints[row, col].Get();
-            return lines;
+            GridConnection conn = Connections.Find(x => x.Source.Equals(p1) && x.Target().Equals(p2));
+            if (conn != null)
+            {
+                return conn.Connector;
+            }
+
+            conn = Connections.Find(x => x.Source.Equals(p2) && x.Target().Equals(p1));
+            if (conn != null)
+            {
+                return conn.Connector;
+            }
+
+            return null;
         }
     }
 }
