@@ -11,6 +11,13 @@ namespace CelticKnotwork1
         private readonly Knotwork knotwork;
         private readonly SimpleTransform transform;
 
+        GridCoordinates originalPoint0 = new GridCoordinates { Row = 0, Col = 1 };
+        GridCoordinates originalPoint1 = new GridCoordinates { Row = 0, Col = 3 };
+        GridCoordinates traversalPoint0;
+        GridCoordinates traversalPoint1;
+        bool colorFlipper = true;
+        Pen altPen;
+
         public Form1()
         {
             InitializeComponent();
@@ -19,25 +26,26 @@ namespace CelticKnotwork1
             knotwork = KnotworkFactory.SampleKnotwork1(4);
             transform = new SimpleTransform { XOffset = 50, XScale = 20, YOffset = 30, YScale = 20 };
 
+            traversalPoint0 = originalPoint0;
+            traversalPoint1 = originalPoint1;
+
             this.Paint += Form1_Paint;
             this.timer1.Interval = 500;
             this.timer1.Tick += Timer1_Tick;
             this.timer1.Start();
         }
 
-        /// <summary>
-        /// Just a flip bit, used to create a blinking square.
-        /// The purpose of the blinking square is to show that the Timer is working as expected.
-        /// In other words, just a debugging tool.
-        /// </summary>
-        private bool ColorFlipper = true;
-
-        GridCoordinates traversalPoint0 = new GridCoordinates { Row = 0, Col = 1 };
-        GridCoordinates traversalPoint1 = new GridCoordinates { Row = 0, Col = 3 };
-
         private void Timer1_Tick(object sender, EventArgs e)
         {
             Graphics g = CreateGraphics();
+
+            // Every time you find yourself at the starting line segment, determine which color to use.
+            if (traversalPoint0.Equals(originalPoint0) && traversalPoint1.Equals(traversalPoint1))
+            {
+                altPen = colorFlipper ? new Pen(Color.Red) : new Pen(Color.Black);
+                colorFlipper = !colorFlipper;
+            }
+
 
             // First, find all points that are connected to the current point.
             List<GridCoordinates> connectedPoints = knotwork.GetConnectionsFor(traversalPoint1).ToList();
@@ -161,7 +169,6 @@ namespace CelticKnotwork1
             else
             {
                 LineSegment cur = knotwork.GetLine(traversalPoint0, traversalPoint1);
-                Pen altPen = new Pen(Color.Red);
 
                 // If we are moving downward
                 if (traversalPoint1.Row > traversalPoint0.Row)
