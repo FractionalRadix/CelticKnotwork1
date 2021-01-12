@@ -41,27 +41,6 @@ namespace CelticKnotwork1
         }
     }
 
-    class DiagonalForwardUp : LineSegment
-    {
-        public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, bool extraLines)
-        {
-            int xCoor = transform.XOffset + transform.XScale * start.Col;
-            int yCoor = transform.YOffset + transform.YScale * start.Row;
-
-            g.DrawLine(pen, xCoor, yCoor, xCoor + transform.XScale, yCoor - transform.YScale);
-            if (extraLines)
-            {
-                g.DrawLine(pen, xCoor - 4, yCoor, xCoor + transform.XScale - 4, yCoor - transform.YScale);
-                g.DrawLine(pen, xCoor + 4, yCoor, xCoor + transform.XScale + 4, yCoor - transform.YScale);
-            }
-        }
-
-        public override GridCoordinates Target(GridCoordinates source)
-        {
-            return new GridCoordinates { Row = source.Row - 1, Col = source.Col + 1 };
-        }
-    }
-
     class DiagonalForwardDown : LineSegment
     {
         public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, bool extraLines)
@@ -80,27 +59,6 @@ namespace CelticKnotwork1
         public override GridCoordinates Target(GridCoordinates source)
         {
             return new GridCoordinates { Row = source.Row + 1, Col = source.Col + 1 };
-        }
-    }
-
-    class DiagonalBackwardUp : LineSegment
-    {
-        public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, bool extraLines)
-        {
-            int xCoor = transform.XOffset + transform.XScale * start.Col;
-            int yCoor = transform.YOffset + transform.YScale * start.Row;
-
-            g.DrawLine(pen, xCoor, yCoor, xCoor - transform.XScale, yCoor - transform.YScale);
-            if (extraLines)
-            {
-                g.DrawLine(pen, xCoor - 4, yCoor, xCoor - transform.XScale - 4, yCoor - transform.YScale);
-                g.DrawLine(pen, xCoor + 4, yCoor, xCoor - transform.XScale + 4, yCoor - transform.YScale);
-            }
-        }
-
-        public override GridCoordinates Target(GridCoordinates source)
-        {
-            return new GridCoordinates { Row = source.Row - 1, Col = source.Col - 1 };
         }
     }
 

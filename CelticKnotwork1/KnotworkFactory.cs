@@ -28,9 +28,8 @@ namespace CelticKnotwork1
 
                 if (i > 1 && i % 2 == 1)
                 {
-                    knotwork.AddLine(i, 0, new DiagonalForwardUp());
-                    knotwork.AddLine(i, 4, new DiagonalBackwardUp());
-
+                    knotwork.AddLine(i - 1, 0 + 1, new DiagonalBackwardDown());
+                    knotwork.AddLine(i - 1, 4 - 1, new DiagonalForwardDown());
                 }
 
                 // Second outermost columns.
@@ -40,28 +39,25 @@ namespace CelticKnotwork1
                     {
                         knotwork.AddLine(i, 1, new VerticalArcingRight());
                         knotwork.AddLine(i, 3, new VerticalArcingLeft());
-
                     }
                     else if (i % 2 == 0)
                     {
                         knotwork.AddLine(i, 1, new DiagonalForwardDown());
                         knotwork.AddLine(i, 3, new DiagonalBackwardDown());
-
                     }
-
 
                     if (i % 2 == 0 && i % 6 != 0)
                     {
-                        knotwork.AddLine(i, 1, new DiagonalForwardUp());
-                        knotwork.AddLine(i, 3, new DiagonalBackwardUp());
+                        knotwork.AddLine(i - 1, 1 + 1, new DiagonalBackwardDown());
+                        knotwork.AddLine(i - 1, 3 - 1, new DiagonalForwardDown());
                     }
                 }
             }
 
             // Top
             knotwork.AddLine(0, 1, new HorizontalArcingUp());
-            knotwork.AddLine(1, 2, new DiagonalBackwardUp());
-            knotwork.AddLine(1, 2, new DiagonalForwardUp());
+            knotwork.AddLine(1 - 1, 2 - 1, new DiagonalForwardDown());
+            knotwork.AddLine(1 - 1, 2 + 1, new DiagonalBackwardDown());
 
 
             // Bottom
