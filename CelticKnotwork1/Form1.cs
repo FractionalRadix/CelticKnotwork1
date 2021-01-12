@@ -20,7 +20,7 @@ namespace CelticKnotwork1
             transform = new SimpleTransform { XOffset = 50, XScale = 20, YOffset = 30, YScale = 20 };
 
             this.Paint += Form1_Paint;
-            this.timer1.Interval = 1000;
+            this.timer1.Interval = 500;
             this.timer1.Tick += Timer1_Tick;
             this.timer1.Start();
         }
@@ -37,16 +37,7 @@ namespace CelticKnotwork1
 
         private void Timer1_Tick(object sender, EventArgs e)
         {
-            Console.WriteLine(traversalPoint1);
-
             Graphics g = CreateGraphics();
-
-            //TODO!- For debugging. Draw a blinking little square, to see if the timer is working properly.
-            Pen colorFlippingPen = new Pen(ColorFlipper ? Color.Red : Color.Green);
-            g.DrawRectangle(colorFlippingPen, new Rectangle(new Point(10, 10), new Size(20, 20)));
-            ColorFlipper = !ColorFlipper;
-            Brush brush = new SolidBrush(Color.Red);
-
 
             // First, find all points that are connected to the current point.
             List<GridCoordinates> connectedPoints = knotwork.GetConnectionsFor(traversalPoint1).ToList();
@@ -162,15 +153,39 @@ namespace CelticKnotwork1
 
 
 
-            //TODO!- Temporary, to prevent crash until the bug is properly solved.
+            // For robustness... we'd rather stop the animation, than crash.
             if (traversalPoint1 == null)
-                traversalPoint1 = new GridCoordinates { Row = 0, Col = 0 };
+            {
+                traversalPoint1 = new GridCoordinates { Row = -1, Col = -1 };
+            }
+            else
+            {
+                LineSegment cur = knotwork.GetLine(traversalPoint0, traversalPoint1);
+                Pen altPen = new Pen(Color.Red);
 
-            //TODO!~ Draw the right line segment.
-            // Until we got that, let's just draw the point...
-            int x = transform.XOffset + transform.XScale * traversalPoint1.Col;
-            int y = transform.YOffset + transform.YScale * traversalPoint1.Row;
-            g.FillEllipse(brush, new Rectangle(new Point(x-2,y-2), new Size(5,5)));
+                // If we are moving downward
+                if (traversalPoint1.Row > traversalPoint0.Row)
+                {
+                    cur.Paint(g, altPen, traversalPoint0, transform, true);
+                }
+                // If we are moving upward
+                else if (traversalPoint1.Row < traversalPoint0.Row)
+                {
+                    cur.Paint(g, altPen, traversalPoint1, transform, true);
+                }
+                else
+                {
+                    // Staying at the same height, this can only be a horizontal arc.
+                    if (traversalPoint1.Col > traversalPoint0.Col)
+                    {
+                        cur.Paint(g, altPen, traversalPoint0, transform, true);
+                    }
+                    else
+                    {
+                        cur.Paint(g, altPen, traversalPoint1, transform, true);
+                    }
+                }
+            }
         }
 
         private void Form1_Paint(object sender, PaintEventArgs e)
