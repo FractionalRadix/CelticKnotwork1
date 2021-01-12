@@ -16,7 +16,7 @@ namespace CelticKnotwork1
             InitializeComponent();
             Graphics g = this.CreateGraphics();
 
-            knotwork = KnotworkFactory.SampleKnotwork1(1);
+            knotwork = KnotworkFactory.SampleKnotwork1(4);
             transform = new SimpleTransform { XOffset = 50, XScale = 20, YOffset = 30, YScale = 20 };
 
             this.Paint += Form1_Paint;
@@ -32,12 +32,8 @@ namespace CelticKnotwork1
         /// </summary>
         private bool ColorFlipper = true;
 
-        GridCoordinates traversalPoint0 = new GridCoordinates { Row = 1, Col = 0 };
-        GridCoordinates traversalPoint1 = new GridCoordinates { Row = 2, Col = 1 };
-        //GridCoordinates traversalPoint0 = new GridCoordinates { Row = 0, Col = 1 };
-        //GridCoordinates traversalPoint1 = new GridCoordinates { Row = 0, Col = 3 };
-
-
+        GridCoordinates traversalPoint0 = new GridCoordinates { Row = 0, Col = 1 };
+        GridCoordinates traversalPoint1 = new GridCoordinates { Row = 0, Col = 3 };
 
         private void Timer1_Tick(object sender, EventArgs e)
         {
@@ -55,7 +51,10 @@ namespace CelticKnotwork1
             // First, find all points that are connected to the current point.
             List<GridCoordinates> connectedPoints = knotwork.GetConnectionsFor(traversalPoint1).ToList();
 
-            // Second, if there is only one connected point, then that is where we must go.
+            // Second, the point that you came from, is the only point GUARANTEED not to be the one you need to visit next.
+            connectedPoints = connectedPoints.FindAll(x => !x.Equals(traversalPoint0));
+
+            // Third, if there is only one connected point, then that is where we must go.
             if (connectedPoints.Count == 1)
             {
                 traversalPoint0 = traversalPoint1;
@@ -63,7 +62,7 @@ namespace CelticKnotwork1
             }
             else
             {
-                // Third, if there are multiple possible connections, find the one that starts in the same direction.
+                // Fourth, if there are multiple possible connections, find the one that starts in the same direction.
                 // There's probably a simpler way, that is about checking the direction of the line segments.
                 // Like: "the direction in which the previous line segment ends, is the one in which the next should start".
                 // Note that "start" and "end" are somewhat relative towards your current direction. 
@@ -91,11 +90,23 @@ namespace CelticKnotwork1
                     preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row + 1, Col = traversalPoint1.Col - 1 };
                     preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row + 2, Col = traversalPoint1.Col };
                 }
+                else if (rowDirection == -1 && colDirection == -1)
+                {
+                    preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row - 1, Col = traversalPoint1.Col - 1 };
+                    preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row - 2, Col = traversalPoint1.Col };
+                }
+                else if (rowDirection == -1 && colDirection == +1 )
+                {
+                    preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row - 1, Col = traversalPoint1.Col + 1 };
+                    preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row - 2, Col = traversalPoint1.Col };
+                }
                 else if (rowDirection == +2 && colDirection == 0)
                 {
+                    // Direction is downwards. But is it downwards to the left, or downwards to the right?
+
                     LineSegment connector = knotwork.GetLine(traversalPoint0, traversalPoint1);
 
-                    // Was the last line segment a downards arc, arcing towards the left?
+                    // Was the last line segment a vertical arc, arcing towards the left?
                     // Then our next line segment should be a diagonal downwards and rightwards; or a downwards arc arcing towards the right;
                     // failing both, it's probably a line going up.
                     if (connector is VerticalArcingLeft)
@@ -104,13 +115,35 @@ namespace CelticKnotwork1
                         preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row + 2, Col = traversalPoint1.Col };
                     }
 
-                    // Was the last line segment a downwards arc, arcing towards the right?
+                    // Was the last line segment a vertical arc, arcing towards the right?
                     // Then our next line segment should be a diagonal downwards and leftwards; or a downwards arc arcing towards the left;
                     // failing both, it's probably a line going up.
                     else if (connector is VerticalArcingRight)
                     {
                         preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row + 1, Col = traversalPoint1.Col - 1 };
                         preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row + 2, Col = traversalPoint1.Col };
+                    }
+                }
+                else if (rowDirection == -2 && colDirection == 0)
+                {
+                    // Direction is upwards. But is it upwards to the left, or upwards to the right?
+
+                    LineSegment connector = knotwork.GetLine(traversalPoint0, traversalPoint1);
+
+                    // Was the last line segment a vertical arc, arcing towards the left?
+                    // Then our direction is towards the left.
+                    if (connector is VerticalArcingLeft)
+                    {
+                        preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row - 1, Col = traversalPoint1.Col + 1 };
+                        preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row - 2, Col = traversalPoint1.Col };
+                    }
+
+                    // Was the last line segment a vertical arc, arcing towards the right?
+                    // Then our direction is towards the right.
+                    else if (connector is VerticalArcingRight)
+                    {
+                        preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row - 1, Col = traversalPoint1.Col - 1 };
+                        preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row - 2, Col = traversalPoint1.Col };
                     }
                 }
 
