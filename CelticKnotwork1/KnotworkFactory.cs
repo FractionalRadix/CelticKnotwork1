@@ -68,5 +68,26 @@ namespace CelticKnotwork1
             // Done! Return the sample knotwork.
             return knotwork;
         }
+
+        public static Knotwork SampleKnotwork2()
+        {
+            Knotwork knotwork = new Knotwork(11,15); //TODO!~
+
+            for (int col = 0; col < knotwork.Cols - 1; col += 2)
+            {
+                knotwork.AddLine(0, col, new HorizontalArcingUp());
+                knotwork.AddLine(knotwork.Rows - 1, col, new HorizontalArcingDown());
+            }
+
+            for (int row = 0; row < knotwork.Rows - 1; row += 2)
+            {
+                knotwork.AddLine(row, 0, new VerticalArcingLeft());
+                knotwork.AddLine(row, knotwork.Cols - 1, new VerticalArcingRight());
+            }
+
+            //TODO!+
+
+            return knotwork;
+        }
     }
 }

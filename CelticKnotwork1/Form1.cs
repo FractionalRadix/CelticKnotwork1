@@ -11,12 +11,12 @@ namespace CelticKnotwork1
         private readonly Knotwork knotwork;
         private readonly SimpleTransform transform;
 
-        GridCoordinates originalPoint0 = new GridCoordinates { Row = 0, Col = 1 };
-        GridCoordinates originalPoint1 = new GridCoordinates { Row = 0, Col = 3 };
-        GridCoordinates traversalPoint0;
-        GridCoordinates traversalPoint1;
-        bool colorFlipper = true;
-        Pen altPen;
+        private readonly GridCoordinates originalPoint0 = new GridCoordinates { Row = 0, Col = 1 };
+        private readonly GridCoordinates originalPoint1 = new GridCoordinates { Row = 0, Col = 3 };
+        private GridCoordinates traversalPoint0;
+        private GridCoordinates traversalPoint1;
+        private bool colorFlipper = true;
+        private Pen altPen;
 
         public Form1()
         {
@@ -24,6 +24,7 @@ namespace CelticKnotwork1
             Graphics g = this.CreateGraphics();
 
             knotwork = KnotworkFactory.SampleKnotwork1(4);
+            //knotwork = KnotworkFactory.SampleKnotwork2();
             transform = new SimpleTransform { XOffset = 50, XScale = 20, YOffset = 30, YScale = 20 };
 
             traversalPoint0 = originalPoint0;
@@ -168,6 +169,8 @@ namespace CelticKnotwork1
             }
             else
             {
+                DrawConnection(g, altPen, transform, knotwork, traversalPoint0, traversalPoint1, true);
+                /*
                 LineSegment cur = knotwork.GetLine(traversalPoint0, traversalPoint1);
 
                 // If we are moving downward
@@ -192,6 +195,49 @@ namespace CelticKnotwork1
                         cur.Paint(g, altPen, traversalPoint1, transform, true);
                     }
                 }
+                */
+            }
+        }
+
+        /// <summary>
+        /// Draw the line segment (or arc), that connects points p0 and p1, using the specified Pen.
+        /// </summary>
+        /// <param name="g"></param>
+        /// <param name="pen"></param>
+        /// <param name="transform"></param>
+        /// <param name="knotwork"></param>
+        /// <param name="p0"></param>
+        /// <param name="p1"></param>
+        /// <param name="extraLines"></param>
+        void DrawConnection(Graphics g, Pen pen, SimpleTransform transform, Knotwork knotwork, GridCoordinates p0, GridCoordinates p1, bool extraLines)
+        {
+            LineSegment l = knotwork.GetLine(p0, p1);
+            if (l == null)
+            {
+                return;
+            }
+
+            // If we are moving downward
+            if (p1.Row > p0.Row)
+            {
+                l.Paint(g, pen, p0, transform, extraLines);
+            }
+            // If we are moving upward
+            else if (p1.Row < p0.Row)
+            {
+                l.Paint(g, pen, p1, transform, extraLines);
+            }
+            else
+            {
+                // Staying at the same height, this can only be a horizontal arc.
+                if (p1.Col > p0.Col)
+                {
+                    l.Paint(g, pen, p0, transform, extraLines);
+                }
+                else
+                {
+                    l.Paint(g, pen, p1, transform, extraLines);
+                }
             }
         }
 
@@ -207,6 +253,7 @@ namespace CelticKnotwork1
             }
             DrawKnotwork(g, pen, knotwork, transform);
         }
+
 
         void DrawKnotwork(Graphics g, Pen pen, Knotwork knotwork, SimpleTransform transform)
         {
