@@ -17,6 +17,7 @@ namespace CelticKnotwork1
         private GridCoordinates traversalPoint1;
         private bool colorFlipper = true;
         private Pen altPen;
+        private bool m_extraLines = true;
 
         public Form1()
         {
@@ -31,7 +32,7 @@ namespace CelticKnotwork1
             traversalPoint1 = originalPoint1;
 
             this.Paint += Form1_Paint;
-            this.timer1.Interval = 500;
+            this.timer1.Interval = 125;
             this.timer1.Tick += Timer1_Tick;
             this.timer1.Start();
         }
@@ -169,33 +170,7 @@ namespace CelticKnotwork1
             }
             else
             {
-                DrawConnection(g, altPen, transform, knotwork, traversalPoint0, traversalPoint1, true);
-                /*
-                LineSegment cur = knotwork.GetLine(traversalPoint0, traversalPoint1);
-
-                // If we are moving downward
-                if (traversalPoint1.Row > traversalPoint0.Row)
-                {
-                    cur.Paint(g, altPen, traversalPoint0, transform, true);
-                }
-                // If we are moving upward
-                else if (traversalPoint1.Row < traversalPoint0.Row)
-                {
-                    cur.Paint(g, altPen, traversalPoint1, transform, true);
-                }
-                else
-                {
-                    // Staying at the same height, this can only be a horizontal arc.
-                    if (traversalPoint1.Col > traversalPoint0.Col)
-                    {
-                        cur.Paint(g, altPen, traversalPoint0, transform, true);
-                    }
-                    else
-                    {
-                        cur.Paint(g, altPen, traversalPoint1, transform, true);
-                    }
-                }
-                */
+                DrawConnection(g, altPen, transform, knotwork, traversalPoint0, traversalPoint1, m_extraLines);
             }
         }
 
@@ -232,12 +207,57 @@ namespace CelticKnotwork1
                 // Staying at the same height, this can only be a horizontal arc.
                 if (p1.Col > p0.Col)
                 {
+                    //TODO!~ In time, replace "l.Paint" with the code for drawing using a parametric function.
                     l.Paint(g, pen, p0, transform, extraLines);
+
+                    //TODO!~ Add compensation for location in the caller, not in DrawQuarterCircle.
+                    // This will require "p0" to support floating-point numbers, so the function signature here must be changed.
+                    Pen pen2 = new Pen(Color.DarkBlue);
+                    DrawHorizontalUpwardsArc(g, pen2, transform, p0);
                 }
                 else
                 {
+                    //TODO!~ In time, replace "l.Paint" with the code for drawing using a parametric function.
                     l.Paint(g, pen, p1, transform, extraLines);
+
+                    Pen pen2 = new Pen(Color.DarkBlue);
+                    // Note that the following compensates for modifications done in DrawQuarterCircle.
+                    GridCoordinates q = new GridCoordinates { Row = p0.Row - 1, Col = p0.Col - 2 };
+                    DrawHorizontalDownwardsArc(g, pen2, transform, q);
                 }
+            }
+        }
+
+        private void DrawHorizontalUpwardsArc(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0)
+        {
+            DrawQuarterCircle(g, pen, transform, p0, 1.25);
+        }
+
+        private void DrawHorizontalDownwardsArc(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0)
+        {
+            DrawQuarterCircle(g, pen, transform, p0, 0.25);
+        }
+
+        private void DrawQuarterCircle(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double startRadians)
+        {
+            //double startRadians = 1.75; // Vertical arc, arcing towards the right.
+            //double startRadians = 1.25; // Horizontal arc, arcing upward.
+            //double startRadians = 0.75; // Vertical arc, arcing towards the left.
+            //double startRadians = 0.25; // Horizontal arc, arcing downward.
+
+            Point? d0 = null;
+            
+            for (double t = 0.0; t <= 1.0; t += 0.1)
+            {
+                double angle = (startRadians + 0.5*t) * Math.PI;
+                double x1 = p0.Col + 1.0 + Math.Cos(angle);
+                double y1 = p0.Row + 0.5 + Math.Sin(angle);
+                Point d1 = transform.Apply(x1, y1);
+                if (d0 != null)
+                {
+                    g.DrawLine(pen, d0.Value, d1);
+                }
+                d0 = d1;
             }
         }
 
@@ -251,14 +271,12 @@ namespace CelticKnotwork1
             {
                 DrawGrid(g, pen, knotwork.Rows, knotwork.Cols, transform);
             }
-            DrawKnotwork(g, pen, knotwork, transform);
+            DrawKnotwork(g, pen, knotwork, transform, m_extraLines);
         }
 
 
-        void DrawKnotwork(Graphics g, Pen pen, Knotwork knotwork, SimpleTransform transform)
+        void DrawKnotwork(Graphics g, Pen pen, Knotwork knotwork, SimpleTransform transform, bool extraLines)
         {
-            bool extraLines = true;
-
             // Draw the actual knotwork.
             var connections = knotwork.GetAllLines();
             foreach (var connection in connections)
