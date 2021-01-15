@@ -195,12 +195,40 @@ namespace CelticKnotwork1
             // If we are moving downward
             if (p1.Row > p0.Row)
             {
+                //TODO!~ In time, replace "l.Paint" with the code for drawing using a parametric function.
                 l.Paint(g, pen, p0, transform, extraLines);
+
+                //TODO!~ Move to the appropriate LineSegment child class.
+                Pen pen2 = new Pen(Color.DarkBlue);
+                if (l is VerticalArcingRight)
+                {
+                    PointF p = new PointF { X = p0.Col - 1, Y = p0.Row + 0.5f };
+                    DrawVerticalRightwardsArc(g, pen2, transform, p);
+                }
+                else if (l is VerticalArcingLeft)
+                {
+                    PointF p = new PointF { X = p0.Col + 1, Y = p0.Row + 0.5f };
+                    DrawVerticalLeftwardsArc(g, pen2, transform, p);
+                }
             }
             // If we are moving upward
             else if (p1.Row < p0.Row)
             {
+                //TODO!~ In time, replace "l.Paint" with the code for drawing using a parametric function.
                 l.Paint(g, pen, p1, transform, extraLines);
+
+                //TODO!~ Move to the appropriate LineSegment child class.
+                Pen pen2 = new Pen(Color.DarkBlue);
+                if (l is VerticalArcingRight)
+                {
+                    PointF p = new PointF { X = p1.Col - 1, Y = p1.Row + 0.5f };
+                    DrawVerticalRightwardsArc(g, pen2, transform, p);
+                }
+                else if (l is VerticalArcingLeft)
+                {
+                    PointF p = new PointF { X = p1.Col + 1, Y = p1.Row + 0.5f };
+                    DrawVerticalLeftwardsArc(g, pen2, transform, p);
+                }
             }
             else
             {
@@ -210,10 +238,9 @@ namespace CelticKnotwork1
                     //TODO!~ In time, replace "l.Paint" with the code for drawing using a parametric function.
                     l.Paint(g, pen, p0, transform, extraLines);
 
-                    //TODO!~ Add compensation for location in the caller, not in DrawQuarterCircle.
-                    // This will require "p0" to support floating-point numbers, so the function signature here must be changed.
+                    //TODO!~ Move to the appropriate LineSegment child class.
                     Pen pen2 = new Pen(Color.DarkBlue);
-                    Point p = new Point { X = p0.Col, Y = p0.Row };
+                    PointF p = new PointF { X = p0.Col + 1, Y = p0.Row + 0.5f };
                     DrawHorizontalUpwardsArc(g, pen2, transform, p);
                 }
                 else
@@ -221,36 +248,35 @@ namespace CelticKnotwork1
                     //TODO!~ In time, replace "l.Paint" with the code for drawing using a parametric function.
                     l.Paint(g, pen, p1, transform, extraLines);
 
+                    //TODO!~ Move to the appropriate LineSegment child class.
                     Pen pen2 = new Pen(Color.DarkBlue);
-                    // Note that the following compensates for modifications done in DrawQuarterCircle.
-                    //GridCoordinates q = new GridCoordinates { Row = p0.Row - 1, Col = p0.Col - 2 };
-                    Point p = new Point { X = p0.Col - 2, Y = p0.Row - 1 };
+                    PointF p = new PointF { X = p0.Col - 1, Y = p0.Row - 0.5f };
                     DrawHorizontalDownwardsArc(g, pen2, transform, p);
                 }
             }
         }
 
-        private void DrawHorizontalUpwardsArc(Graphics g, Pen pen, SimpleTransform transform, Point p0)
+        private void DrawHorizontalUpwardsArc(Graphics g, Pen pen, SimpleTransform transform, PointF p0)
         {
             DrawQuarterCircle(g, pen, transform, p0, 1.25);
         }
 
-        private void DrawHorizontalDownwardsArc(Graphics g, Pen pen, SimpleTransform transform, Point p0)
+        private void DrawHorizontalDownwardsArc(Graphics g, Pen pen, SimpleTransform transform, PointF p0)
         {
             DrawQuarterCircle(g, pen, transform, p0, 0.25);
         }
 
-        private void DrawVerticalLeftwardsArc(Graphics g, Pen pen, SimpleTransform transform, Point p0)
+        private void DrawVerticalLeftwardsArc(Graphics g, Pen pen, SimpleTransform transform, PointF p0)
         {
             DrawQuarterCircle(g, pen, transform, p0, 0.75);
         }
 
-        private void DrawVerticalRightwardsArc(Graphics g, Pen pen, SimpleTransform transform, Point p0)
+        private void DrawVerticalRightwardsArc(Graphics g, Pen pen, SimpleTransform transform, PointF p0)
         {
             DrawQuarterCircle(g, pen, transform, p0, 1.75);
         }
 
-        private void DrawQuarterCircle(Graphics g, Pen pen, SimpleTransform transform, Point p0, double startRadians)
+        private void DrawQuarterCircle(Graphics g, Pen pen, SimpleTransform transform, PointF p0, double startRadians)
         {
             //double startRadians = 1.75; // Vertical arc, arcing towards the right.
             //double startRadians = 1.25; // Horizontal arc, arcing upward.
@@ -262,8 +288,8 @@ namespace CelticKnotwork1
             for (double t = 0.0; t <= 1.0; t += 0.1)
             {
                 double angle = (startRadians + 0.5*t) * Math.PI;
-                double x1 = p0.X + 1.0 + Math.Cos(angle);
-                double y1 = p0.Y + 0.5 + Math.Sin(angle);
+                double x1 = p0.X + Math.Cos(angle);
+                double y1 = p0.Y + Math.Sin(angle);
                 Point d1 = transform.Apply(x1, y1);
                 if (d0 != null)
                 {
