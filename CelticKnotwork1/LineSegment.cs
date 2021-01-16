@@ -11,7 +11,7 @@ namespace CelticKnotwork1
     /// </summary>
     abstract class LineSegment
     {
-        public abstract void Paint(Graphics g, Pen p, GridCoordinates start, SimpleTransform transform, bool extraLines);
+        public abstract void Paint(Graphics g, Pen p, GridCoordinates start, SimpleTransform transform, double? extraLines);
 
         /// <summary>
         /// Given a point on the grid, determine the grid point that this line segment would connect it to.
@@ -25,17 +25,17 @@ namespace CelticKnotwork1
             return new Rectangle(startOfBoundingRect, sizeOfBoundingRect);
         }
 
-        protected void DrawArcs(Graphics g, Pen myPen, bool extraLines, Ellipse ellipse, float startAngle, float sweepAngle)
+        protected void DrawArcs(Graphics g, Pen myPen, double? extraLines, Ellipse ellipse, float startAngle, float sweepAngle)
         {
             Rectangle boundingRect = CalculateBoundingRectangle(ellipse);
             g.DrawArc(myPen, boundingRect, startAngle, sweepAngle);
 
-            if (extraLines)
+            if (extraLines != null)
             {
-                Rectangle outerBoundingRect = CalculateBoundingRectangle(ellipse.increaseRadius(+4));
+                Rectangle outerBoundingRect = CalculateBoundingRectangle(ellipse.increaseRadius(+extraLines.Value));
                 g.DrawArc(myPen, outerBoundingRect, startAngle, sweepAngle);
 
-                Rectangle innerBoundingRect = CalculateBoundingRectangle(ellipse.increaseRadius(-4));
+                Rectangle innerBoundingRect = CalculateBoundingRectangle(ellipse.increaseRadius(-extraLines.Value));
                 g.DrawArc(myPen, innerBoundingRect, startAngle, sweepAngle);
             }
         }
@@ -43,13 +43,13 @@ namespace CelticKnotwork1
 
     class DiagonalForwardDown : LineSegment
     {
-        public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, bool extraLines)
+        public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
             int xCoor = transform.XOffset + transform.XScale * start.Col;
             int yCoor = transform.YOffset + transform.YScale * start.Row;
 
             g.DrawLine(pen, xCoor, yCoor, xCoor + transform.XScale, yCoor + transform.YScale);
-            if (extraLines)
+            if (extraLines != null)
             {
                 g.DrawLine(pen, xCoor - 4, yCoor, xCoor + transform.XScale - 4, yCoor + transform.YScale);
                 g.DrawLine(pen, xCoor + 4, yCoor, xCoor + transform.XScale + 4, yCoor + transform.YScale);
@@ -64,13 +64,13 @@ namespace CelticKnotwork1
 
     class DiagonalBackwardDown : LineSegment
     {
-        public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, bool extraLines)
+        public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
             int xCoor = transform.XOffset + transform.XScale * start.Col;
             int yCoor = transform.YOffset + transform.YScale * start.Row;
 
             g.DrawLine(pen, xCoor, yCoor, xCoor - transform.XScale, yCoor + transform.YScale);
-            if (extraLines)
+            if (extraLines != null)
             {
                 g.DrawLine(pen, xCoor - 4, yCoor, xCoor - transform.XScale - 4, yCoor + transform.YScale);
                 g.DrawLine(pen, xCoor + 4, yCoor, xCoor - transform.XScale + 4, yCoor + transform.YScale);
@@ -85,7 +85,7 @@ namespace CelticKnotwork1
 
     class VerticalArcingLeft : LineSegment
     {
-        public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, bool extraLines)
+        public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
             double xRadius = transform.XScale / (0.5 * Math.Sqrt(2));
             double yRadius = transform.YScale / (0.5 * Math.Sqrt(2));
@@ -109,7 +109,7 @@ namespace CelticKnotwork1
 
     class VerticalArcingRight : LineSegment
     {
-        public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, bool extraLines)
+        public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
             double xRadius = transform.XScale / (0.5 * Math.Sqrt(2));
             double yRadius = transform.YScale / (0.5 * Math.Sqrt(2));
@@ -133,7 +133,7 @@ namespace CelticKnotwork1
 
     class HorizontalArcingUp : LineSegment
     {
-        public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, bool extraLines)
+        public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
             double xRadius = transform.XScale / (0.5 * Math.Sqrt(2));
             double yRadius = transform.YScale / (0.5 * Math.Sqrt(2));
@@ -157,7 +157,7 @@ namespace CelticKnotwork1
 
     class HorizontalArcingDown : LineSegment
     {
-        public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, bool extraLines)
+        public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
             double xRadius = transform.XScale / (0.5 * Math.Sqrt(2));
             double yRadius = transform.YScale / (0.5 * Math.Sqrt(2));

@@ -17,7 +17,7 @@ namespace CelticKnotwork1
         private GridCoordinates traversalPoint1;
         private bool colorFlipper = true;
         private Pen altPen;
-        private bool m_extraLines = true;
+        private double? m_extraLines = 0.2;
 
         public Form1()
         {
@@ -191,7 +191,7 @@ namespace CelticKnotwork1
         /// <param name="p0"></param>
         /// <param name="p1"></param>
         /// <param name="extraLines"></param>
-        void DrawConnection(Graphics g, Pen pen, SimpleTransform transform, Knotwork knotwork, GridCoordinates p0, GridCoordinates p1, bool extraLines)
+        void DrawConnection(Graphics g, Pen pen, SimpleTransform transform, Knotwork knotwork, GridCoordinates p0, GridCoordinates p1, double? extraLines)
         {
             LineSegment l = knotwork.GetLine(p0, p1);
             if (l == null)
@@ -275,27 +275,27 @@ namespace CelticKnotwork1
             }
         }
 
-        private void DrawHorizontalUpwardsArc(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, bool extraLines)
+        private void DrawHorizontalUpwardsArc(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double? extraLines)
         {
             DrawQuarterCircle(g, pen, transform, p0, 1.25, extraLines);
         }
 
-        private void DrawHorizontalDownwardsArc(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, bool extraLines)
+        private void DrawHorizontalDownwardsArc(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double? extraLines)
         {
             DrawQuarterCircle(g, pen, transform, p0, 0.25, extraLines);
         }
 
-        private void DrawVerticalLeftwardsArc(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, bool extraLines)
+        private void DrawVerticalLeftwardsArc(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double? extraLines)
         {
             DrawQuarterCircle(g, pen, transform, p0, 0.75, extraLines);
         }
 
-        private void DrawVerticalRightwardsArc(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, bool extraLines)
+        private void DrawVerticalRightwardsArc(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double? extraLines)
         {
             DrawQuarterCircle(g, pen, transform, p0, 1.75, extraLines);
         }
 
-        private void DrawQuarterCircle(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double startRadians, bool extraLines)
+        private static void DrawQuarterCircle(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double startRadians, double? extraLines)
         {
             //double startRadians = 1.75; // Vertical arc, arcing towards the right.
             //double startRadians = 1.25; // Horizontal arc, arcing upward.
@@ -309,8 +309,14 @@ namespace CelticKnotwork1
             Point d1Inner = new Point(0, 0), d1Outer = new Point(0, 0);
 
             double radius = Math.Sqrt(2);
-            double innerRadius = radius - 0.2;
-            double outerRadius = radius + 0.2;
+            double innerRadius = 0.0, outerRadius = 0.0;
+
+            
+            if (extraLines != null)
+            {
+                innerRadius = radius - extraLines.Value;
+                outerRadius = radius + extraLines.Value;
+            }
             
             for (double t = 0.0; t <= 1.0; t += 0.1)
             {
@@ -322,7 +328,7 @@ namespace CelticKnotwork1
                 double y1 = p0.Row + radius * sa;
                 d1 = transform.Apply(x1, y1);
 
-                if (extraLines)
+                if (extraLines != null)
                 {
                     double x1Inner = p0.Col + innerRadius * ca;
                     double y1Inner = p0.Row + innerRadius * sa;
@@ -336,7 +342,7 @@ namespace CelticKnotwork1
                 if (d0 != null)
                 {
                     g.DrawLine(pen, d0.Value, d1);
-                    if (extraLines)
+                    if (extraLines != null)
                     {
                         g.DrawLine(pen, d0Inner.Value, d1Inner);
 
@@ -349,7 +355,7 @@ namespace CelticKnotwork1
             }
         }
 
-        private void DrawForwardDownwardDiagonal(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, bool extraLines)
+        private void DrawForwardDownwardDiagonal(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double? extraLines)
         {
             //TODO!+ Add the code for extra lines
 
@@ -374,7 +380,7 @@ namespace CelticKnotwork1
             }
         }
 
-        private void DrawBackwardDownwardDiagonal(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, bool extraLines)
+        private void DrawBackwardDownwardDiagonal(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double? extraLines)
         {
             //TODO!+ Add the code for extra lines
 
@@ -417,7 +423,7 @@ namespace CelticKnotwork1
         }
 
 
-        void DrawKnotwork(Graphics g, Pen pen, Knotwork knotwork, SimpleTransform transform, bool extraLines)
+        void DrawKnotwork(Graphics g, Pen pen, Knotwork knotwork, SimpleTransform transform, double? extraLines)
         {
             // Draw the actual knotwork.
             var connections = knotwork.GetAllLines();
