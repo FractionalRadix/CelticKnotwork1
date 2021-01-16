@@ -202,245 +202,54 @@ namespace CelticKnotwork1
             // If we are moving downward
             if (p1.Row > p0.Row)
             {
-                Pen pen2 = new Pen(Color.DarkBlue);
-
-                if (l is DiagonalForwardDown)                   
+                GridCoordinates start;
+                if (l is VerticalArcingLeft)
                 {
-                    //TODO!~ Move to the appropriate LineSegment subclass.
-                    DrawForwardDownwardDiagonal(g, pen, transform, p0, extraLines);
-                }
-                else if (l is DiagonalBackwardDown)
-                {
-                    //TODO!~ Move to the appropriate LineSegment subclass.
-                    DrawBackwardDownwardDiagonal(g, pen, transform, p0, extraLines);
-                }
+                    start = new GridCoordinates { Col = p0.Col + 1, Row = p0.Row + 1 };
+                } 
                 else if (l is VerticalArcingRight)
                 {
-                    //TODO!~ Move to the appropriate LineSegment child class.
-                    GridCoordinates p = new GridCoordinates { Col = p0.Col - 1, Row = p0.Row + 1 };
-                    DrawVerticalRightwardsArc(g, pen2, transform, p, extraLines);
-                }
-                else if (l is VerticalArcingLeft)
+                    start = new GridCoordinates { Col = p0.Col - 1, Row = p0.Row + 1 };
+                } 
+                else
                 {
-                    //TODO!~ Move to the appropriate LineSegment child class.
-                    GridCoordinates p = new GridCoordinates { Col = p0.Col + 1, Row = p0.Row + 1 };
-                    DrawVerticalLeftwardsArc(g, pen2, transform, p, extraLines);
+                    start = p0;
                 }
+
+                l.Paint2(g, pen, start, transform, extraLines);
             }
             // If we are moving upward
             else if (p1.Row < p0.Row)
             {
-                Pen pen2 = new Pen(Color.DarkBlue);
-
-                if (l is DiagonalForwardDown)                    
+                GridCoordinates start;
+                if (l is VerticalArcingLeft)
                 {
-                    //TODO!~ Move it to the appropriate LineSegment subclass.
-                    DrawForwardDownwardDiagonal(g, pen, transform, p1, extraLines);
-                }
-                else if (l is DiagonalBackwardDown)
-                {
-                    //TODO!~ Move it to the appropriate LineSegment subclass.
-                    DrawBackwardDownwardDiagonal(g, pen, transform, p1, extraLines);
+                    start = new GridCoordinates { Col = p1.Col + 1, Row = p1.Row + 1 };
                 }
                 else if (l is VerticalArcingRight)
                 {
-                    //TODO!~ Move this to the appropriate LineSegment subclass.
-                    GridCoordinates p = new GridCoordinates { Col = p1.Col - 1, Row = p1.Row + 1 };
-                    DrawVerticalRightwardsArc(g, pen2, transform, p, extraLines);
+                    start = new GridCoordinates { Col = p1.Col - 1, Row = p1.Row + 1 };
                 }
-                else if (l is VerticalArcingLeft)
+                else
                 {
-                    //TODO!~ Move this to the appropriate LineSegment subclass.
-                    GridCoordinates p = new GridCoordinates { Col = p1.Col + 1, Row = p1.Row + 1 };
-                    DrawVerticalLeftwardsArc(g, pen2, transform, p, extraLines);
+                    start = p1;
                 }
+
+                l.Paint2(g, pen, start, transform, extraLines);
+
             }
             else
             {
                 // Staying at the same height, this can only be a horizontal arc.
                 if (p1.Col > p0.Col)
                 {
-                    //TODO!~ Move to the appropriate LineSegment child class.
-                    Pen pen2 = new Pen(Color.DarkBlue);
                     GridCoordinates p = new GridCoordinates { Col = p0.Col + 1, Row = p0.Row + 1 };
-                    DrawHorizontalUpwardsArc(g, pen2, transform, p, extraLines);
+                    l.Paint2(g, pen, p, transform, extraLines);
                 }
                 else
                 {
-                    //TODO!~ Move to the appropriate LineSegment child class.
-                    Pen pen2 = new Pen(Color.DarkBlue);
                     GridCoordinates p = new GridCoordinates { Col = p0.Col - 1, Row = p0.Row - 1 };
-                    DrawHorizontalDownwardsArc(g, pen2, transform, p, extraLines);
-                }
-            }
-        }
-
-        private void DrawHorizontalUpwardsArc(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double? extraLines)
-        {
-            DrawQuarterCircle(g, pen, transform, p0, 1.25, extraLines);
-        }
-
-        private void DrawHorizontalDownwardsArc(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double? extraLines)
-        {
-            DrawQuarterCircle(g, pen, transform, p0, 0.25, extraLines);
-        }
-
-        private void DrawVerticalLeftwardsArc(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double? extraLines)
-        {
-            DrawQuarterCircle(g, pen, transform, p0, 0.75, extraLines);
-        }
-
-        private void DrawVerticalRightwardsArc(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double? extraLines)
-        {
-            DrawQuarterCircle(g, pen, transform, p0, 1.75, extraLines);
-        }
-
-        private static void DrawQuarterCircle(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double startRadians, double? extraLines)
-        {
-            //double startRadians = 1.75; // Vertical arc, arcing towards the right.
-            //double startRadians = 1.25; // Horizontal arc, arcing upward.
-            //double startRadians = 0.75; // Vertical arc, arcing towards the left.
-            //double startRadians = 0.25; // Horizontal arc, arcing downward.
-
-            Point? d0 = null;
-            Point? d0Inner = null, d0Outer = null;
-
-            Point d1;
-            Point d1Inner = new Point(0, 0), d1Outer = new Point(0, 0);
-
-            double radius = Math.Sqrt(2);
-            double innerRadius = 0.0, outerRadius = 0.0;
-
-            
-            if (extraLines != null)
-            {
-                innerRadius = radius - extraLines.Value;
-                outerRadius = radius + extraLines.Value;
-            }
-            
-            for (double t = 0.0; t <= 1.0; t += 0.1)
-            {
-                double angle = (startRadians + 0.5*t) * Math.PI;
-                double ca = Math.Cos(angle);
-                double sa = Math.Sin(angle);
-
-                double x1 = p0.Col + radius * ca;
-                double y1 = p0.Row + radius * sa;
-                d1 = transform.Apply(x1, y1);
-
-                if (extraLines != null)
-                {
-                    double x1Inner = p0.Col + innerRadius * ca;
-                    double y1Inner = p0.Row + innerRadius * sa;
-                    d1Inner = transform.Apply(x1Inner, y1Inner);
-
-                    double x1Outer = p0.Col + outerRadius * ca;
-                    double y1Outer = p0.Row + outerRadius * sa;
-                    d1Outer = transform.Apply(x1Outer, y1Outer);
-                }
-
-                if (d0 != null)
-                {
-                    g.DrawLine(pen, d0.Value, d1);
-                    if (extraLines != null)
-                    {
-                        g.DrawLine(pen, d0Inner.Value, d1Inner);
-                        g.DrawLine(pen, d0Outer.Value, d1Outer);
-                    }
-                }
-                d0 = d1;
-                d0Inner = d1Inner;
-                d0Outer = d1Outer;
-            }
-        }
-
-        private void DrawForwardDownwardDiagonal(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double? extraLines)
-        {
-            Point? d0 = null;
-            Point? d0Left = null, d0Right = null;
-
-            Point d1;
-            Point d1Left = new Point(0, 0), d1Right = new Point(0, 0);
-
-            for (double t = 0.0; t <= 1.0; t += 0.1)
-            {
-                double x1 = p0.Col + t;
-                double y1 = p0.Row + t;
-                d1 = transform.Apply(x1, y1);
-
-                if (extraLines != null)
-                {
-                    double x1Left = p0.Col + t - extraLines.Value * Math.Sqrt(2);
-                    double y1Left = p0.Row + t;
-                    d1Left = transform.Apply(x1Left, y1Left);
-
-                    double x1Right = p0.Col + t + extraLines.Value * Math.Sqrt(2);
-                    double y1Right = p0.Row + t;
-                    d1Right = transform.Apply(x1Right, y1Right);
-                }
-
-                if (d0 != null)
-                {
-                    g.DrawLine(pen, d0.Value, d1);
-
-                    if (extraLines != null)
-                    {
-                        g.DrawLine(pen, d0Left.Value, d1Left);
-                        g.DrawLine(pen, d0Right.Value, d1Right);
-                    }
-                }
-
-                d0 = d1;
-                if (extraLines != null)
-                {
-                    d0Left = d1Left;
-                    d0Right = d1Right;
-                }
-            }
-        }
-
-        private void DrawBackwardDownwardDiagonal(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double? extraLines)
-        {
-            //TODO!+ Add the code for extra lines
-
-            Point? d0 = null;
-            Point? d0Left = null, d0Right = null;
-
-            Point d1;
-            Point d1Left = new Point(0, 0), d1Right = new Point(0, 0);
-
-            for (double t = 0.0; t <= 1.0; t += 0.1)
-            {
-                double x1 = p0.Col - t;
-                double y1 = p0.Row + t;
-                d1 = transform.Apply(x1, y1);
-
-                if (extraLines != null)
-                {
-                    double x1Left = p0.Col - t - extraLines.Value * Math.Sqrt(2);
-                    double y1Left = p0.Row + t;
-                    d1Left = transform.Apply(x1Left, y1Left);
-
-                    double x1Right = p0.Col - t + extraLines.Value * Math.Sqrt(2);
-                    double y1Right = p0.Row + t;
-                    d1Right = transform.Apply(x1Right, y1Right);
-                }
-
-                if (d0 != null)
-                {
-                    g.DrawLine(pen, d0.Value, d1);
-                    if (extraLines != null)
-                    {
-                        g.DrawLine(pen, d0Left.Value, d1Left);
-                        g.DrawLine(pen, d0Right.Value, d1Right);
-                    }
-                }
-
-                d0 = d1;
-                if (extraLines != null)
-                {
-                    d0Left = d1Left;
-                    d0Right = d1Right;
+                    l.Paint2(g, pen, p, transform, extraLines);
                 }
             }
         }
