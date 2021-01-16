@@ -17,7 +17,7 @@ namespace CelticKnotwork1
         private GridCoordinates traversalPoint1;
         private bool colorFlipper = true;
         private Pen altPen;
-        private double? m_extraLines = 0.2;
+        private double? m_extraLines = 0.25;
 
         public Form1()
         {
@@ -345,7 +345,6 @@ namespace CelticKnotwork1
                     if (extraLines != null)
                     {
                         g.DrawLine(pen, d0Inner.Value, d1Inner);
-
                         g.DrawLine(pen, d0Outer.Value, d1Outer);
                     }
                 }
@@ -357,13 +356,11 @@ namespace CelticKnotwork1
 
         private void DrawForwardDownwardDiagonal(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double? extraLines)
         {
-            //TODO!+ Add the code for extra lines
-
             Point? d0 = null;
-            Point? d0Inner = null, d0Outer = null;
+            Point? d0Left = null, d0Right = null;
 
             Point d1;
-            Point d1Inner = new Point(0, 0), d1Outer = new Point(0, 0);
+            Point d1Left = new Point(0, 0), d1Right = new Point(0, 0);
 
             for (double t = 0.0; t <= 1.0; t += 0.1)
             {
@@ -371,12 +368,34 @@ namespace CelticKnotwork1
                 double y1 = p0.Row + t;
                 d1 = transform.Apply(x1, y1);
 
+                if (extraLines != null)
+                {
+                    double x1Left = p0.Col + t - extraLines.Value * Math.Sqrt(2);
+                    double y1Left = p0.Row + t;
+                    d1Left = transform.Apply(x1Left, y1Left);
+
+                    double x1Right = p0.Col + t + extraLines.Value * Math.Sqrt(2);
+                    double y1Right = p0.Row + t;
+                    d1Right = transform.Apply(x1Right, y1Right);
+                }
+
                 if (d0 != null)
                 {
                     g.DrawLine(pen, d0.Value, d1);
+
+                    if (extraLines != null)
+                    {
+                        g.DrawLine(pen, d0Left.Value, d1Left);
+                        g.DrawLine(pen, d0Right.Value, d1Right);
+                    }
                 }
 
                 d0 = d1;
+                if (extraLines != null)
+                {
+                    d0Left = d1Left;
+                    d0Right = d1Right;
+                }
             }
         }
 
@@ -385,10 +404,10 @@ namespace CelticKnotwork1
             //TODO!+ Add the code for extra lines
 
             Point? d0 = null;
-            Point? d0Inner = null, d0Outer = null;
+            Point? d0Left = null, d0Right = null;
 
             Point d1;
-            Point d1Inner = new Point(0, 0), d1Outer = new Point(0, 0);
+            Point d1Left = new Point(0, 0), d1Right = new Point(0, 0);
 
             for (double t = 0.0; t <= 1.0; t += 0.1)
             {
@@ -396,12 +415,33 @@ namespace CelticKnotwork1
                 double y1 = p0.Row + t;
                 d1 = transform.Apply(x1, y1);
 
+                if (extraLines != null)
+                {
+                    double x1Left = p0.Col - t - extraLines.Value * Math.Sqrt(2);
+                    double y1Left = p0.Row + t;
+                    d1Left = transform.Apply(x1Left, y1Left);
+
+                    double x1Right = p0.Col - t + extraLines.Value * Math.Sqrt(2);
+                    double y1Right = p0.Row + t;
+                    d1Right = transform.Apply(x1Right, y1Right);
+                }
+
                 if (d0 != null)
                 {
                     g.DrawLine(pen, d0.Value, d1);
+                    if (extraLines != null)
+                    {
+                        g.DrawLine(pen, d0Left.Value, d1Left);
+                        g.DrawLine(pen, d0Right.Value, d1Right);
+                    }
                 }
 
                 d0 = d1;
+                if (extraLines != null)
+                {
+                    d0Left = d1Left;
+                    d0Right = d1Right;
+                }
             }
         }
 

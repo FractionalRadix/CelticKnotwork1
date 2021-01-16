@@ -32,10 +32,10 @@ namespace CelticKnotwork1
 
             if (extraLines != null)
             {
-                Rectangle outerBoundingRect = CalculateBoundingRectangle(ellipse.increaseRadius(+extraLines.Value));
+                Rectangle outerBoundingRect = CalculateBoundingRectangle(ellipse.increaseRadius(+4.0 /* +extraLines.Value */ ));
                 g.DrawArc(myPen, outerBoundingRect, startAngle, sweepAngle);
 
-                Rectangle innerBoundingRect = CalculateBoundingRectangle(ellipse.increaseRadius(-extraLines.Value));
+                Rectangle innerBoundingRect = CalculateBoundingRectangle(ellipse.increaseRadius(-4.0 /* -extraLines.Value */));
                 g.DrawArc(myPen, innerBoundingRect, startAngle, sweepAngle);
             }
         }
