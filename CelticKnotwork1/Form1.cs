@@ -207,13 +207,13 @@ namespace CelticKnotwork1
                 {
                     //PointF p = new PointF { X = p0.Col - 1, Y = p0.Row + 0.5f };
                     PointF p = new PointF { X = p0.Col - 1, Y = p0.Row + 1 };
-                    DrawVerticalRightwardsArc(g, pen2, transform, p);
+                    DrawVerticalRightwardsArc(g, pen2, transform, p, extraLines);
                 }
                 else if (l is VerticalArcingLeft)
                 {
                     //PointF p = new PointF { X = p0.Col + 1, Y = p0.Row + 0.5f };
                     PointF p = new PointF { X = p0.Col + 1, Y = p0.Row + 1 };
-                    DrawVerticalLeftwardsArc(g, pen2, transform, p);
+                    DrawVerticalLeftwardsArc(g, pen2, transform, p, extraLines);
                 }
             }
             // If we are moving upward
@@ -238,14 +238,14 @@ namespace CelticKnotwork1
                     //TODO!~ Add the option to add extra lines to this parametric representation of the function.
                     // After that, move it to the appropriate LineSegment subclass.
                     PointF p = new PointF { X = p1.Col - 1, Y = p1.Row + 1 };
-                    DrawVerticalRightwardsArc(g, pen2, transform, p);
+                    DrawVerticalRightwardsArc(g, pen2, transform, p, extraLines);
                 }
                 else if (l is VerticalArcingLeft)
                 {
                     //TODO!~ Add the option to add extra lines to this parametric representation of the function.
                     // After that, move it to the appropriate LineSegment subclass.
                     PointF p = new PointF { X = p1.Col + 1, Y = p1.Row + 1 };
-                    DrawVerticalLeftwardsArc(g, pen2, transform, p);
+                    DrawVerticalLeftwardsArc(g, pen2, transform, p, extraLines);
                 }
             }
             else
@@ -254,47 +254,47 @@ namespace CelticKnotwork1
                 if (p1.Col > p0.Col)
                 {
                     //TODO!~ In time, replace "l.Paint" with the code for drawing using a parametric function.
-                    l.Paint(g, pen, p0, transform, extraLines);
+                    //l.Paint(g, pen, p0, transform, extraLines);
 
                     //TODO!~ Move to the appropriate LineSegment child class.
                     Pen pen2 = new Pen(Color.DarkBlue);
-                    PointF p = new PointF { X = p0.Col + 1, Y = p0.Row + 0.5f };
-                    DrawHorizontalUpwardsArc(g, pen2, transform, p);
+                    PointF p = new PointF { X = p0.Col + 1, Y = p0.Row + 1 };
+                    DrawHorizontalUpwardsArc(g, pen2, transform, p, extraLines);
                 }
                 else
                 {
                     //TODO!~ In time, replace "l.Paint" with the code for drawing using a parametric function.
-                    l.Paint(g, pen, p1, transform, extraLines);
+                    //l.Paint(g, pen, p1, transform, extraLines);
 
                     //TODO!~ Move to the appropriate LineSegment child class.
                     Pen pen2 = new Pen(Color.DarkBlue);
-                    PointF p = new PointF { X = p0.Col - 1, Y = p0.Row - 0.5f };
-                    DrawHorizontalDownwardsArc(g, pen2, transform, p);
+                    PointF p = new PointF { X = p0.Col - 1, Y = p0.Row - 1 };
+                    DrawHorizontalDownwardsArc(g, pen2, transform, p, extraLines);
                 }
             }
         }
 
-        private void DrawHorizontalUpwardsArc(Graphics g, Pen pen, SimpleTransform transform, PointF p0)
+        private void DrawHorizontalUpwardsArc(Graphics g, Pen pen, SimpleTransform transform, PointF p0, bool extraLines)
         {
-            DrawQuarterCircle(g, pen, transform, p0, 1.25);
+            DrawQuarterCircle(g, pen, transform, p0, 1.25, extraLines);
         }
 
-        private void DrawHorizontalDownwardsArc(Graphics g, Pen pen, SimpleTransform transform, PointF p0)
+        private void DrawHorizontalDownwardsArc(Graphics g, Pen pen, SimpleTransform transform, PointF p0, bool extraLines)
         {
-            DrawQuarterCircle(g, pen, transform, p0, 0.25);
+            DrawQuarterCircle(g, pen, transform, p0, 0.25, extraLines);
         }
 
-        private void DrawVerticalLeftwardsArc(Graphics g, Pen pen, SimpleTransform transform, PointF p0)
+        private void DrawVerticalLeftwardsArc(Graphics g, Pen pen, SimpleTransform transform, PointF p0, bool extraLines)
         {
-            DrawQuarterCircle(g, pen, transform, p0, 0.75);
+            DrawQuarterCircle(g, pen, transform, p0, 0.75, extraLines);
         }
 
-        private void DrawVerticalRightwardsArc(Graphics g, Pen pen, SimpleTransform transform, PointF p0)
+        private void DrawVerticalRightwardsArc(Graphics g, Pen pen, SimpleTransform transform, PointF p0, bool extraLines)
         {
-            DrawQuarterCircle(g, pen, transform, p0, 1.75);
+            DrawQuarterCircle(g, pen, transform, p0, 1.75, extraLines);
         }
 
-        private void DrawQuarterCircle(Graphics g, Pen pen, SimpleTransform transform, PointF p0, double startRadians)
+        private void DrawQuarterCircle(Graphics g, Pen pen, SimpleTransform transform, PointF p0, double startRadians, bool extraLines)
         {
             //double startRadians = 1.75; // Vertical arc, arcing towards the right.
             //double startRadians = 1.25; // Horizontal arc, arcing upward.
@@ -302,19 +302,49 @@ namespace CelticKnotwork1
             //double startRadians = 0.25; // Horizontal arc, arcing downward.
 
             Point? d0 = null;
+            Point? d0Inner = null, d0Outer = null;
+
+            Point d1;
+            Point d1Inner = new Point(0, 0), d1Outer = new Point(0, 0);
+
             double radius = Math.Sqrt(2);
+            double innerRadius = radius - 0.2;
+            double outerRadius = radius + 0.2;
             
             for (double t = 0.0; t <= 1.0; t += 0.1)
             {
                 double angle = (startRadians + 0.5*t) * Math.PI;
-                double x1 = p0.X + radius * Math.Cos(angle);
-                double y1 = p0.Y + radius * Math.Sin(angle);
-                Point d1 = transform.Apply(x1, y1);
+                double ca = Math.Cos(angle);
+                double sa = Math.Sin(angle);
+
+                double x1 = p0.X + radius * ca;
+                double y1 = p0.Y + radius * sa;
+                d1 = transform.Apply(x1, y1);
+
+                if (extraLines)
+                {
+                    double x1Inner = p0.X + innerRadius * ca;
+                    double y1Inner = p0.Y + innerRadius * sa;
+                    d1Inner = transform.Apply(x1Inner, y1Inner);
+
+                    double x1Outer = p0.X + outerRadius * ca;
+                    double y1Outer = p0.Y + outerRadius * sa;
+                    d1Outer = transform.Apply(x1Outer, y1Outer);
+                }
+
                 if (d0 != null)
                 {
                     g.DrawLine(pen, d0.Value, d1);
+                    if (extraLines)
+                    {
+                        g.DrawLine(pen, d0Inner.Value, d1Inner);
+
+                        g.DrawLine(pen, d0Outer.Value, d1Outer);
+                    }
                 }
                 d0 = d1;
+                d0Inner = d1Inner;
+                d0Outer = d1Outer;
             }
         }
 
