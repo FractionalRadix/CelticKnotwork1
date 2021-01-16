@@ -17,16 +17,16 @@ namespace CelticKnotwork1
         private GridCoordinates traversalPoint1;
         private bool colorFlipper = true;
         private Pen altPen;
-        private double? m_extraLines = 0.25;
+        private double? m_extraLines = 0.2;
 
         public Form1()
         {
             InitializeComponent();
             Graphics g = this.CreateGraphics();
 
-            knotwork = KnotworkFactory.SampleKnotwork1(4);
+            knotwork = KnotworkFactory.SampleKnotwork1(9);
             //knotwork = KnotworkFactory.SampleKnotwork2();
-            transform = new SimpleTransform { XOffset = 50, XScale = 20, YOffset = 30, YScale = 20 };
+            transform = new SimpleTransform { XOffset = 50, XScale = 10, YOffset = 30, YScale = 10 };
 
             traversalPoint0 = originalPoint0;
             traversalPoint1 = originalPoint1;
@@ -44,7 +44,7 @@ namespace CelticKnotwork1
             // Every time you find yourself at the starting line segment, determine which color to use.
             if (traversalPoint0.Equals(originalPoint0) && traversalPoint1.Equals(traversalPoint1))
             {
-                altPen = colorFlipper ? new Pen(Color.Red) : new Pen(Color.Black);
+                altPen = colorFlipper ? new Pen(Color.Black) : new Pen(Color.DarkGoldenrod);
                 colorFlipper = !colorFlipper;
             }
 
@@ -184,13 +184,15 @@ namespace CelticKnotwork1
         /// <summary>
         /// Draw the line segment (or arc), that connects points p0 and p1, using the specified Pen.
         /// </summary>
-        /// <param name="g"></param>
-        /// <param name="pen"></param>
-        /// <param name="transform"></param>
-        /// <param name="knotwork"></param>
-        /// <param name="p0"></param>
-        /// <param name="p1"></param>
-        /// <param name="extraLines"></param>
+        /// <param name="g">The graphics context to draw on.</param>
+        /// <param name="pen">The pen (color) in which to draw the line(s).</param>
+        /// <param name="transform">Transformation from grid coordinates to screen coordinates.</param>
+        /// <param name="knotwork">The knotwork that the line segment or arc belongs to.</param>
+        /// <param name="p0">Starting point of the line segment or arc to draw.</param>
+        /// <param name="p1">End point of the line segment or arc to draw.</param>
+        /// <param name="extraLines">The distance between the center line and the outer lines.
+        /// When set to <code>null</code>, no outer lines are drawn.
+        /// </param>
         void DrawConnection(Graphics g, Pen pen, SimpleTransform transform, Knotwork knotwork, GridCoordinates p0, GridCoordinates p1, double? extraLines)
         {
             LineSegment l = knotwork.GetLine(p0, p1);
@@ -199,44 +201,15 @@ namespace CelticKnotwork1
                 return;
             }
 
-            // If we are moving downward
+            // If we are moving downward. "l" can be a vertical arc or a diagonal.
             if (p1.Row > p0.Row)
             {
-                GridCoordinates start;
-                if (l is VerticalArcingLeft)
-                {
-                    start = new GridCoordinates { Col = p0.Col + 1, Row = p0.Row + 1 };
-                } 
-                else if (l is VerticalArcingRight)
-                {
-                    start = new GridCoordinates { Col = p0.Col - 1, Row = p0.Row + 1 };
-                } 
-                else
-                {
-                    start = p0;
-                }
-
-                l.Paint2(g, pen, start, transform, extraLines);
+                l.Paint2(g, pen, p0, transform, extraLines);
             }
-            // If we are moving upward
+            // If we are moving upward. "l" can be a vertical arc or a diagonal.
             else if (p1.Row < p0.Row)
             {
-                GridCoordinates start;
-                if (l is VerticalArcingLeft)
-                {
-                    start = new GridCoordinates { Col = p1.Col + 1, Row = p1.Row + 1 };
-                }
-                else if (l is VerticalArcingRight)
-                {
-                    start = new GridCoordinates { Col = p1.Col - 1, Row = p1.Row + 1 };
-                }
-                else
-                {
-                    start = p1;
-                }
-
-                l.Paint2(g, pen, start, transform, extraLines);
-
+                l.Paint2(g, pen, p1, transform, extraLines);
             }
             else
             {
@@ -256,7 +229,7 @@ namespace CelticKnotwork1
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
-            bool drawGrid = true;
+            bool drawGrid = false;
             bool drawKnotwork = false;
             Graphics g = e.Graphics;
             Pen pen = new Pen(Color.Black, 1.0f);

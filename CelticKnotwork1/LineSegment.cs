@@ -255,7 +255,8 @@ namespace CelticKnotwork1
 
         public override void Paint2(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
-            DrawQuarterCircle(g, pen, transform, start, 0.75, extraLines);
+            GridCoordinates newStart = new GridCoordinates { Col = start.Col + 1, Row = start.Row + 1 };
+            DrawQuarterCircle(g, pen, transform, newStart, 0.75, extraLines);
         }
 
         public override GridCoordinates Target(GridCoordinates source)
@@ -284,7 +285,8 @@ namespace CelticKnotwork1
 
         public override void Paint2(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
-            DrawQuarterCircle(g, pen, transform, start, 1.75, extraLines);
+            GridCoordinates newStart = new GridCoordinates { Col = start.Col - 1, Row = start.Row + 1 };
+            DrawQuarterCircle(g, pen, transform, newStart, 1.75, extraLines);
         }
 
         public override GridCoordinates Target(GridCoordinates source)
