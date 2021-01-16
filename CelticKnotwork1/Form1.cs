@@ -68,86 +68,15 @@ namespace CelticKnotwork1
                 // Like: "the direction in which the previous line segment ends, is the one in which the next should start".
                 // Note that "start" and "end" are somewhat relative towards your current direction. 
                 // Either way, though, it's a property of the line segments. So our LineSegment class should have that added.
-                
+
                 // Also note that at the end of each knotwork, a sharp change of direction is possible.
                 // So rather than requiring to follow in the current direction, you look at all connected line segments, and PREFER 
                 // the one that continues the current direction.
                 // Perhaps we should sort the list in order of "desirableness of direction".
                 // However, there is one point that is ALWAYS ruled out, and that is the point that we came from.
 
-                int rowDirection = traversalPoint1.Row - traversalPoint0.Row;
-                int colDirection = traversalPoint1.Col - traversalPoint0.Col;
-
-                GridCoordinates preferredNext1 = null, preferredNext2 = null;
-
-
-                if (rowDirection == 1 && colDirection == 1)
-                {
-                    preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row + 1, Col = traversalPoint1.Col + 1 };
-                    preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row + 2, Col = traversalPoint1.Col };
-                }
-                else if (rowDirection == 1 && colDirection == -1)
-                {
-                    preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row + 1, Col = traversalPoint1.Col - 1 };
-                    preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row + 2, Col = traversalPoint1.Col };
-                }
-                else if (rowDirection == -1 && colDirection == -1)
-                {
-                    preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row - 1, Col = traversalPoint1.Col - 1 };
-                    preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row - 2, Col = traversalPoint1.Col };
-                }
-                else if (rowDirection == -1 && colDirection == +1 )
-                {
-                    preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row - 1, Col = traversalPoint1.Col + 1 };
-                    preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row - 2, Col = traversalPoint1.Col };
-                }
-                else if (rowDirection == +2 && colDirection == 0)
-                {
-                    // Direction is downwards. But is it downwards to the left, or downwards to the right?
-
-                    LineSegment connector = knotwork.GetLine(traversalPoint0, traversalPoint1);
-
-                    // Was the last line segment a vertical arc, arcing towards the left?
-                    // Then our next line segment should be a diagonal downwards and rightwards; or a downwards arc arcing towards the right;
-                    // failing both, it's probably a line going up.
-                    if (connector is VerticalArcingLeft)
-                    {
-                        preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row + 1, Col = traversalPoint1.Col + 1 };
-                        preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row + 2, Col = traversalPoint1.Col };
-                    }
-
-                    // Was the last line segment a vertical arc, arcing towards the right?
-                    // Then our next line segment should be a diagonal downwards and leftwards; or a downwards arc arcing towards the left;
-                    // failing both, it's probably a line going up.
-                    else if (connector is VerticalArcingRight)
-                    {
-                        preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row + 1, Col = traversalPoint1.Col - 1 };
-                        preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row + 2, Col = traversalPoint1.Col };
-                    }
-                }
-                else if (rowDirection == -2 && colDirection == 0)
-                {
-                    // Direction is upwards. But is it upwards to the left, or upwards to the right?
-
-                    LineSegment connector = knotwork.GetLine(traversalPoint0, traversalPoint1);
-
-                    // Was the last line segment a vertical arc, arcing towards the left?
-                    // Then our direction is towards the left.
-                    if (connector is VerticalArcingLeft)
-                    {
-                        preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row - 1, Col = traversalPoint1.Col + 1 };
-                        preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row - 2, Col = traversalPoint1.Col };
-                    }
-
-                    // Was the last line segment a vertical arc, arcing towards the right?
-                    // Then our direction is towards the right.
-                    else if (connector is VerticalArcingRight)
-                    {
-                        preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row - 1, Col = traversalPoint1.Col - 1 };
-                        preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row - 2, Col = traversalPoint1.Col };
-                    }
-                }
-
+                GridCoordinates preferredNext1, preferredNext2;
+                CalculatePreferredNextPoints(out preferredNext1, out preferredNext2);
 
                 if (connectedPoints.Contains(preferredNext1))
                 {
@@ -174,6 +103,84 @@ namespace CelticKnotwork1
             }
         }
 
+        //TODO?~ Move this, make it a method of the Knotwork class?
+        // Note that that requires making traverselPoint0 and traversalPoint1 parameters of this method.
+        private void CalculatePreferredNextPoints(out GridCoordinates preferredNext1, out GridCoordinates preferredNext2)
+        {
+            int rowDirection = traversalPoint1.Row - traversalPoint0.Row;
+            int colDirection = traversalPoint1.Col - traversalPoint0.Col;
+
+            preferredNext1 = null;
+            preferredNext2 = null;
+
+            if (rowDirection == 1 && colDirection == 1)
+            {
+                preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row + 1, Col = traversalPoint1.Col + 1 };
+                preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row + 2, Col = traversalPoint1.Col };
+            }
+            else if (rowDirection == 1 && colDirection == -1)
+            {
+                preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row + 1, Col = traversalPoint1.Col - 1 };
+                preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row + 2, Col = traversalPoint1.Col };
+            }
+            else if (rowDirection == -1 && colDirection == -1)
+            {
+                preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row - 1, Col = traversalPoint1.Col - 1 };
+                preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row - 2, Col = traversalPoint1.Col };
+            }
+            else if (rowDirection == -1 && colDirection == +1)
+            {
+                preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row - 1, Col = traversalPoint1.Col + 1 };
+                preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row - 2, Col = traversalPoint1.Col };
+            }
+            else if (rowDirection == +2 && colDirection == 0)
+            {
+                // Direction is downwards. But is it downwards to the left, or downwards to the right?
+
+                LineSegment connector = knotwork.GetLine(traversalPoint0, traversalPoint1);
+
+                // Was the last line segment a vertical arc, arcing towards the left?
+                // Then our next line segment should be a diagonal downwards and rightwards; or a downwards arc arcing towards the right;
+                // failing both, it's probably a line going up.
+                if (connector is VerticalArcingLeft)
+                {
+                    preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row + 1, Col = traversalPoint1.Col + 1 };
+                    preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row + 2, Col = traversalPoint1.Col };
+                }
+
+                // Was the last line segment a vertical arc, arcing towards the right?
+                // Then our next line segment should be a diagonal downwards and leftwards; or a downwards arc arcing towards the left;
+                // failing both, it's probably a line going up.
+                else if (connector is VerticalArcingRight)
+                {
+                    preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row + 1, Col = traversalPoint1.Col - 1 };
+                    preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row + 2, Col = traversalPoint1.Col };
+                }
+            }
+            else if (rowDirection == -2 && colDirection == 0)
+            {
+                // Direction is upwards. But is it upwards to the left, or upwards to the right?
+
+                LineSegment connector = knotwork.GetLine(traversalPoint0, traversalPoint1);
+
+                // Was the last line segment a vertical arc, arcing towards the left?
+                // Then our direction is towards the left.
+                if (connector is VerticalArcingLeft)
+                {
+                    preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row - 1, Col = traversalPoint1.Col + 1 };
+                    preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row - 2, Col = traversalPoint1.Col };
+                }
+
+                // Was the last line segment a vertical arc, arcing towards the right?
+                // Then our direction is towards the right.
+                else if (connector is VerticalArcingRight)
+                {
+                    preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row - 1, Col = traversalPoint1.Col - 1 };
+                    preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row - 2, Col = traversalPoint1.Col };
+                }
+            }
+        }
+
         /// <summary>
         /// Draw the line segment (or arc), that connects points p0 and p1, using the specified Pen.
         /// </summary>
@@ -195,24 +202,28 @@ namespace CelticKnotwork1
             // If we are moving downward
             if (p1.Row > p0.Row)
             {
-                //TODO!~ In time, replace "l.Paint" with the code for drawing using a parametric function.
-                if (l is DiagonalForwardDown || l is DiagonalBackwardDown)
-                {
-                    l.Paint(g, pen, p0, transform, extraLines);
-                }
-
-                //TODO!~ Move to the appropriate LineSegment child class.
                 Pen pen2 = new Pen(Color.DarkBlue);
-                if (l is VerticalArcingRight)
+
+                if (l is DiagonalForwardDown)                   
                 {
-                    //PointF p = new PointF { X = p0.Col - 1, Y = p0.Row + 0.5f };
-                    PointF p = new PointF { X = p0.Col - 1, Y = p0.Row + 1 };
+                    //TODO!~ Move to the appropriate LineSegment subclass.
+                    DrawForwardDownwardDiagonal(g, pen, transform, p0, extraLines);
+                }
+                else if (l is DiagonalBackwardDown)
+                {
+                    //TODO!~ Move to the appropriate LineSegment subclass.
+                    DrawBackwardDownwardDiagonal(g, pen, transform, p0, extraLines);
+                }
+                else if (l is VerticalArcingRight)
+                {
+                    //TODO!~ Move to the appropriate LineSegment child class.
+                    GridCoordinates p = new GridCoordinates { Col = p0.Col - 1, Row = p0.Row + 1 };
                     DrawVerticalRightwardsArc(g, pen2, transform, p, extraLines);
                 }
                 else if (l is VerticalArcingLeft)
                 {
-                    //PointF p = new PointF { X = p0.Col + 1, Y = p0.Row + 0.5f };
-                    PointF p = new PointF { X = p0.Col + 1, Y = p0.Row + 1 };
+                    //TODO!~ Move to the appropriate LineSegment child class.
+                    GridCoordinates p = new GridCoordinates { Col = p0.Col + 1, Row = p0.Row + 1 };
                     DrawVerticalLeftwardsArc(g, pen2, transform, p, extraLines);
                 }
             }
@@ -223,28 +234,24 @@ namespace CelticKnotwork1
 
                 if (l is DiagonalForwardDown)                    
                 {
-                    //TODO!~ In time, replace "l.Paint" with the code for drawing using a parametric representation of the function.
-                    // After that, move it to the appropriate LineSegment subclass.
-                    l.Paint(g, pen, p1, transform, extraLines);
+                    //TODO!~ Move it to the appropriate LineSegment subclass.
+                    DrawForwardDownwardDiagonal(g, pen, transform, p1, extraLines);
                 }
                 else if (l is DiagonalBackwardDown)
                 {
-                    //TODO!~ In time, replace "l.Paint" with the code for drawing using a parametric representation of the function.
-                    // After that, move it to the appropriate LineSegment subclass.
-                    l.Paint(g, pen, p1, transform, extraLines);
+                    //TODO!~ Move it to the appropriate LineSegment subclass.
+                    DrawBackwardDownwardDiagonal(g, pen, transform, p1, extraLines);
                 }
                 else if (l is VerticalArcingRight)
                 {
-                    //TODO!~ Add the option to add extra lines to this parametric representation of the function.
-                    // After that, move it to the appropriate LineSegment subclass.
-                    PointF p = new PointF { X = p1.Col - 1, Y = p1.Row + 1 };
+                    //TODO!~ Move this to the appropriate LineSegment subclass.
+                    GridCoordinates p = new GridCoordinates { Col = p1.Col - 1, Row = p1.Row + 1 };
                     DrawVerticalRightwardsArc(g, pen2, transform, p, extraLines);
                 }
                 else if (l is VerticalArcingLeft)
                 {
-                    //TODO!~ Add the option to add extra lines to this parametric representation of the function.
-                    // After that, move it to the appropriate LineSegment subclass.
-                    PointF p = new PointF { X = p1.Col + 1, Y = p1.Row + 1 };
+                    //TODO!~ Move this to the appropriate LineSegment subclass.
+                    GridCoordinates p = new GridCoordinates { Col = p1.Col + 1, Row = p1.Row + 1 };
                     DrawVerticalLeftwardsArc(g, pen2, transform, p, extraLines);
                 }
             }
@@ -253,48 +260,42 @@ namespace CelticKnotwork1
                 // Staying at the same height, this can only be a horizontal arc.
                 if (p1.Col > p0.Col)
                 {
-                    //TODO!~ In time, replace "l.Paint" with the code for drawing using a parametric function.
-                    //l.Paint(g, pen, p0, transform, extraLines);
-
                     //TODO!~ Move to the appropriate LineSegment child class.
                     Pen pen2 = new Pen(Color.DarkBlue);
-                    PointF p = new PointF { X = p0.Col + 1, Y = p0.Row + 1 };
+                    GridCoordinates p = new GridCoordinates { Col = p0.Col + 1, Row = p0.Row + 1 };
                     DrawHorizontalUpwardsArc(g, pen2, transform, p, extraLines);
                 }
                 else
                 {
-                    //TODO!~ In time, replace "l.Paint" with the code for drawing using a parametric function.
-                    //l.Paint(g, pen, p1, transform, extraLines);
-
                     //TODO!~ Move to the appropriate LineSegment child class.
                     Pen pen2 = new Pen(Color.DarkBlue);
-                    PointF p = new PointF { X = p0.Col - 1, Y = p0.Row - 1 };
+                    GridCoordinates p = new GridCoordinates { Col = p0.Col - 1, Row = p0.Row - 1 };
                     DrawHorizontalDownwardsArc(g, pen2, transform, p, extraLines);
                 }
             }
         }
 
-        private void DrawHorizontalUpwardsArc(Graphics g, Pen pen, SimpleTransform transform, PointF p0, bool extraLines)
+        private void DrawHorizontalUpwardsArc(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, bool extraLines)
         {
             DrawQuarterCircle(g, pen, transform, p0, 1.25, extraLines);
         }
 
-        private void DrawHorizontalDownwardsArc(Graphics g, Pen pen, SimpleTransform transform, PointF p0, bool extraLines)
+        private void DrawHorizontalDownwardsArc(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, bool extraLines)
         {
             DrawQuarterCircle(g, pen, transform, p0, 0.25, extraLines);
         }
 
-        private void DrawVerticalLeftwardsArc(Graphics g, Pen pen, SimpleTransform transform, PointF p0, bool extraLines)
+        private void DrawVerticalLeftwardsArc(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, bool extraLines)
         {
             DrawQuarterCircle(g, pen, transform, p0, 0.75, extraLines);
         }
 
-        private void DrawVerticalRightwardsArc(Graphics g, Pen pen, SimpleTransform transform, PointF p0, bool extraLines)
+        private void DrawVerticalRightwardsArc(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, bool extraLines)
         {
             DrawQuarterCircle(g, pen, transform, p0, 1.75, extraLines);
         }
 
-        private void DrawQuarterCircle(Graphics g, Pen pen, SimpleTransform transform, PointF p0, double startRadians, bool extraLines)
+        private void DrawQuarterCircle(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double startRadians, bool extraLines)
         {
             //double startRadians = 1.75; // Vertical arc, arcing towards the right.
             //double startRadians = 1.25; // Horizontal arc, arcing upward.
@@ -317,18 +318,18 @@ namespace CelticKnotwork1
                 double ca = Math.Cos(angle);
                 double sa = Math.Sin(angle);
 
-                double x1 = p0.X + radius * ca;
-                double y1 = p0.Y + radius * sa;
+                double x1 = p0.Col + radius * ca;
+                double y1 = p0.Row + radius * sa;
                 d1 = transform.Apply(x1, y1);
 
                 if (extraLines)
                 {
-                    double x1Inner = p0.X + innerRadius * ca;
-                    double y1Inner = p0.Y + innerRadius * sa;
+                    double x1Inner = p0.Col + innerRadius * ca;
+                    double y1Inner = p0.Row + innerRadius * sa;
                     d1Inner = transform.Apply(x1Inner, y1Inner);
 
-                    double x1Outer = p0.X + outerRadius * ca;
-                    double y1Outer = p0.Y + outerRadius * sa;
+                    double x1Outer = p0.Col + outerRadius * ca;
+                    double y1Outer = p0.Row + outerRadius * sa;
                     d1Outer = transform.Apply(x1Outer, y1Outer);
                 }
 
@@ -345,6 +346,56 @@ namespace CelticKnotwork1
                 d0 = d1;
                 d0Inner = d1Inner;
                 d0Outer = d1Outer;
+            }
+        }
+
+        private void DrawForwardDownwardDiagonal(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, bool extraLines)
+        {
+            //TODO!+ Add the code for extra lines
+
+            Point? d0 = null;
+            Point? d0Inner = null, d0Outer = null;
+
+            Point d1;
+            Point d1Inner = new Point(0, 0), d1Outer = new Point(0, 0);
+
+            for (double t = 0.0; t <= 1.0; t += 0.1)
+            {
+                double x1 = p0.Col + t;
+                double y1 = p0.Row + t;
+                d1 = transform.Apply(x1, y1);
+
+                if (d0 != null)
+                {
+                    g.DrawLine(pen, d0.Value, d1);
+                }
+
+                d0 = d1;
+            }
+        }
+
+        private void DrawBackwardDownwardDiagonal(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, bool extraLines)
+        {
+            //TODO!+ Add the code for extra lines
+
+            Point? d0 = null;
+            Point? d0Inner = null, d0Outer = null;
+
+            Point d1;
+            Point d1Inner = new Point(0, 0), d1Outer = new Point(0, 0);
+
+            for (double t = 0.0; t <= 1.0; t += 0.1)
+            {
+                double x1 = p0.Col - t;
+                double y1 = p0.Row + t;
+                d1 = transform.Apply(x1, y1);
+
+                if (d0 != null)
+                {
+                    g.DrawLine(pen, d0.Value, d1);
+                }
+
+                d0 = d1;
             }
         }
 
