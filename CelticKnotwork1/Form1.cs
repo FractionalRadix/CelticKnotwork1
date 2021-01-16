@@ -196,37 +196,55 @@ namespace CelticKnotwork1
             if (p1.Row > p0.Row)
             {
                 //TODO!~ In time, replace "l.Paint" with the code for drawing using a parametric function.
-                l.Paint(g, pen, p0, transform, extraLines);
+                if (l is DiagonalForwardDown || l is DiagonalBackwardDown)
+                {
+                    l.Paint(g, pen, p0, transform, extraLines);
+                }
 
                 //TODO!~ Move to the appropriate LineSegment child class.
                 Pen pen2 = new Pen(Color.DarkBlue);
                 if (l is VerticalArcingRight)
                 {
-                    PointF p = new PointF { X = p0.Col - 1, Y = p0.Row + 0.5f };
+                    //PointF p = new PointF { X = p0.Col - 1, Y = p0.Row + 0.5f };
+                    PointF p = new PointF { X = p0.Col - 1, Y = p0.Row + 1 };
                     DrawVerticalRightwardsArc(g, pen2, transform, p);
                 }
                 else if (l is VerticalArcingLeft)
                 {
-                    PointF p = new PointF { X = p0.Col + 1, Y = p0.Row + 0.5f };
+                    //PointF p = new PointF { X = p0.Col + 1, Y = p0.Row + 0.5f };
+                    PointF p = new PointF { X = p0.Col + 1, Y = p0.Row + 1 };
                     DrawVerticalLeftwardsArc(g, pen2, transform, p);
                 }
             }
             // If we are moving upward
             else if (p1.Row < p0.Row)
             {
-                //TODO!~ In time, replace "l.Paint" with the code for drawing using a parametric function.
-                l.Paint(g, pen, p1, transform, extraLines);
-
-                //TODO!~ Move to the appropriate LineSegment child class.
                 Pen pen2 = new Pen(Color.DarkBlue);
-                if (l is VerticalArcingRight)
+
+                if (l is DiagonalForwardDown)                    
                 {
-                    PointF p = new PointF { X = p1.Col - 1, Y = p1.Row + 0.5f };
+                    //TODO!~ In time, replace "l.Paint" with the code for drawing using a parametric representation of the function.
+                    // After that, move it to the appropriate LineSegment subclass.
+                    l.Paint(g, pen, p1, transform, extraLines);
+                }
+                else if (l is DiagonalBackwardDown)
+                {
+                    //TODO!~ In time, replace "l.Paint" with the code for drawing using a parametric representation of the function.
+                    // After that, move it to the appropriate LineSegment subclass.
+                    l.Paint(g, pen, p1, transform, extraLines);
+                }
+                else if (l is VerticalArcingRight)
+                {
+                    //TODO!~ Add the option to add extra lines to this parametric representation of the function.
+                    // After that, move it to the appropriate LineSegment subclass.
+                    PointF p = new PointF { X = p1.Col - 1, Y = p1.Row + 1 };
                     DrawVerticalRightwardsArc(g, pen2, transform, p);
                 }
                 else if (l is VerticalArcingLeft)
                 {
-                    PointF p = new PointF { X = p1.Col + 1, Y = p1.Row + 0.5f };
+                    //TODO!~ Add the option to add extra lines to this parametric representation of the function.
+                    // After that, move it to the appropriate LineSegment subclass.
+                    PointF p = new PointF { X = p1.Col + 1, Y = p1.Row + 1 };
                     DrawVerticalLeftwardsArc(g, pen2, transform, p);
                 }
             }
@@ -284,12 +302,13 @@ namespace CelticKnotwork1
             //double startRadians = 0.25; // Horizontal arc, arcing downward.
 
             Point? d0 = null;
+            double radius = Math.Sqrt(2);
             
             for (double t = 0.0; t <= 1.0; t += 0.1)
             {
                 double angle = (startRadians + 0.5*t) * Math.PI;
-                double x1 = p0.X + Math.Cos(angle);
-                double y1 = p0.Y + Math.Sin(angle);
+                double x1 = p0.X + radius * Math.Cos(angle);
+                double y1 = p0.Y + radius * Math.Sin(angle);
                 Point d1 = transform.Apply(x1, y1);
                 if (d0 != null)
                 {
@@ -302,6 +321,7 @@ namespace CelticKnotwork1
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             bool drawGrid = true;
+            bool drawKnotwork = false;
             Graphics g = e.Graphics;
             Pen pen = new Pen(Color.Black, 1.0f);
 
@@ -309,7 +329,10 @@ namespace CelticKnotwork1
             {
                 DrawGrid(g, pen, knotwork.Rows, knotwork.Cols, transform);
             }
-            DrawKnotwork(g, pen, knotwork, transform, m_extraLines);
+            if (drawKnotwork)
+            {
+                DrawKnotwork(g, pen, knotwork, transform, m_extraLines);
+            }
         }
 
 
