@@ -5,6 +5,8 @@ using System.Text;
 
 namespace CelticKnotwork1
 {
+    enum Direction { North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest };
+
     /// <summary>
     /// A connection between two points on the grid.
     /// Despite the name, this is not always a line segment; it can also be an arc.
@@ -41,6 +43,9 @@ namespace CelticKnotwork1
                 g.DrawArc(myPen, innerBoundingRect, startAngle, sweepAngle);
             }
         }
+
+        public abstract Direction IngoingDirection();
+        public abstract Direction OutgoingDirection();
 
         protected static void DrawQuarterCircle(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double startRadians, double? extraLines)
         {
@@ -104,6 +109,16 @@ namespace CelticKnotwork1
 
     class DiagonalForwardDown : LineSegment
     {
+        public override Direction IngoingDirection()
+        {
+            return Direction.NorthWest; // Anything that goes in, comes in from the NorthWest.
+        }
+
+        public override Direction OutgoingDirection()
+        {
+            return Direction.SouthEast; // Anything that goes out, goes to the SouthEast.
+        }
+
         public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
             int xCoor = transform.XOffset + transform.XScale * start.Col;
@@ -184,6 +199,16 @@ namespace CelticKnotwork1
 
     class DiagonalBackwardDown : LineSegment
     {
+        public override Direction IngoingDirection()
+        {
+            return Direction.NorthEast;
+        }
+
+        public override Direction OutgoingDirection()
+        {
+            return Direction.SouthWest;
+        }
+
         public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
             int xCoor = transform.XOffset + transform.XScale * start.Col;
@@ -249,6 +274,16 @@ namespace CelticKnotwork1
 
     class VerticalArcingLeft : LineSegment
     {
+        public override Direction IngoingDirection()
+        {
+            return Direction.SouthEast;
+        }
+
+        public override Direction OutgoingDirection()
+        {
+            return Direction.NorthEast;
+        }
+
         public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
             double xRadius = transform.XScale / (0.5 * Math.Sqrt(2));
@@ -279,6 +314,16 @@ namespace CelticKnotwork1
 
     class VerticalArcingRight : LineSegment
     {
+        public override Direction IngoingDirection()
+        {
+            return Direction.NorthWest;
+        }
+
+        public override Direction OutgoingDirection()
+        {
+            return Direction.SouthWest;
+        }
+
         public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
             double xRadius = transform.XScale / (0.5 * Math.Sqrt(2));
@@ -309,6 +354,16 @@ namespace CelticKnotwork1
 
     class HorizontalArcingUp : LineSegment
     {
+        public override Direction IngoingDirection()
+        {
+            return Direction.SouthWest;
+        }
+
+        public override Direction OutgoingDirection()
+        {
+            return Direction.SouthEast;
+        }
+
         public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
             double xRadius = transform.XScale / (0.5 * Math.Sqrt(2));
@@ -338,6 +393,16 @@ namespace CelticKnotwork1
 
     class HorizontalArcingDown : LineSegment
     {
+        public override Direction IngoingDirection()
+        {
+            return Direction.NorthWest;
+        }
+
+        public override Direction OutgoingDirection()
+        {
+            return Direction.NorthEast;
+        }
+
         public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
             double xRadius = transform.XScale / (0.5 * Math.Sqrt(2));

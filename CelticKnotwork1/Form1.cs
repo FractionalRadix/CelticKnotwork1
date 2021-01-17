@@ -24,17 +24,34 @@ namespace CelticKnotwork1
             InitializeComponent();
             Graphics g = this.CreateGraphics();
 
-            knotwork = KnotworkFactory.SampleKnotwork1(9);
-            //knotwork = KnotworkFactory.SampleKnotwork2(51,25,1);
+            //knotwork = KnotworkFactory.SampleKnotwork1(9);
+            knotwork = KnotworkFactory.SampleKnotwork2(51,25,4);
             transform = new SimpleTransform { XOffset = 50, XScale = 10, YOffset = 30, YScale = 10 };
 
             traversalPoint0 = originalPoint0;
             traversalPoint1 = originalPoint1;
 
             this.Paint += Form1_Paint;
-            this.timer1.Interval = 125;
+            this.timer1.Interval = 25;// WAS: 125;
             this.timer1.Tick += Timer1_Tick;
-            this.timer1.Start();
+            //this.timer1.Start();
+        }
+
+        private void Form1_Paint(object sender, PaintEventArgs e)
+        {
+            bool drawGrid = true;
+            bool drawKnotwork = true;
+            Graphics g = e.Graphics;
+            Pen pen = new Pen(Color.Black, 1.0f);
+
+            if (drawGrid)
+            {
+                DrawGrid(g, pen, knotwork.Rows, knotwork.Cols, transform);
+            }
+            if (drawKnotwork)
+            {
+                DrawKnotwork(g, pen, knotwork, transform, m_extraLines);
+            }
         }
 
         private void Timer1_Tick(object sender, EventArgs e)
@@ -119,27 +136,92 @@ namespace CelticKnotwork1
             preferredNext2 = null;
             preferredNext3 = null;
 
-            if (rowDirection == 1 && colDirection == 1)
+
+            if (rowDirection == -2 && colDirection == 0)
             {
-                preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row + 1, Col = traversalPoint1.Col + 1 };
-                preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row + 2, Col = traversalPoint1.Col };
-                preferredNext3 = new GridCoordinates { Row = traversalPoint1.Row, Col = traversalPoint1.Col + 2 };
+                // Direction is upwards. But is it upwards to the left, or upwards to the right?
+
+                LineSegment connector = knotwork.GetLine(traversalPoint0, traversalPoint1);
+
+                // Was the last line segment a vertical arc, arcing towards the left?
+                // Then our direction is towards the left.
+                if (connector is VerticalArcingLeft)
+                {
+                    preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row - 1, Col = traversalPoint1.Col + 1 }; // Diagonal
+                    preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row - 2, Col = traversalPoint1.Col }; // VerticalArcingRight
+                    preferredNext3 = new GridCoordinates { Row = traversalPoint1.Row, Col = traversalPoint1.Col + 2 }; // HorizontalArcingUp
+                }
+
+                // Was the last line segment a vertical arc, arcing towards the right?
+                // Then our direction is towards the right.
+                else if (connector is VerticalArcingRight)
+                {
+                    preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row - 1, Col = traversalPoint1.Col - 1 };
+                    preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row - 2, Col = traversalPoint1.Col };
+                    //TODO?+ preferredNext3 ?
+                }
             }
-            else if (rowDirection == 1 && colDirection == -1)
+            else if (rowDirection == -1)
             {
-                preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row + 1, Col = traversalPoint1.Col - 1 };
-                preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row + 2, Col = traversalPoint1.Col };
+                if (colDirection == -1)
+                {
+                    preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row - 1, Col = traversalPoint1.Col - 1 };
+                    preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row - 2, Col = traversalPoint1.Col };
+                }
+                else if (colDirection == +1)
+                {
+                    preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row - 1, Col = traversalPoint1.Col + 1 };
+                    preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row - 2, Col = traversalPoint1.Col };
+                }
             }
-            else if (rowDirection == -1 && colDirection == -1)
+            else if (rowDirection == 0)
             {
-                preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row - 1, Col = traversalPoint1.Col - 1 };
-                preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row - 2, Col = traversalPoint1.Col };
+                if (colDirection == -2)
+                {
+                    LineSegment l = knotwork.GetLine(traversalPoint0, traversalPoint1);
+                    if (l is HorizontalArcingDown)
+                    {
+                        // We're headed backwards and upwards.
+                        preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row - 1, Col = traversalPoint1.Col - 1 }; // Diagonal
+                        preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row, Col = traversalPoint1.Col - 2 }; // HorizontalArcingUp
+                        preferredNext3 = new GridCoordinates { Row = traversalPoint1.Row - 2, Col = traversalPoint1.Col }; // VerticalArcingLeft
+                    }
+                    else if (l is HorizontalArcingUp)
+                    {
+                        // We're headed backwards and downwards.
+                        preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row + 1, Col = traversalPoint1.Col - 1 }; // Diagonal
+                        preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row, Col = traversalPoint1.Col - 2}; // HorizontalArcingDown
+                        preferredNext3 = new GridCoordinates { Row = traversalPoint1.Row + 2, Col = traversalPoint1.Col }; // VerticalArcingRight
+                    }
+                }
+                else if (colDirection == +2)
+                {
+                    preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row + 1, Col = traversalPoint1.Col + 1 };
+                    preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row, Col = traversalPoint1.Col + 2 };
+                    //TODO!+ The next line should have a conditional: the LineSegment that you came from, should be a downwards facing arc.
+                    preferredNext3 = new GridCoordinates { Row = traversalPoint1.Row - 1, Col = traversalPoint1.Col + 1 };
+                }
             }
-            else if (rowDirection == -1 && colDirection == +1)
+            else if (rowDirection == 1)
             {
-                preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row - 1, Col = traversalPoint1.Col + 1 };
-                preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row - 2, Col = traversalPoint1.Col };
-            }
+                if (colDirection == -1)
+                {
+                    preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row + 1, Col = traversalPoint1.Col - 1 };
+                    //TODO!+ The following is only possible if the connected line is a vertical arc arcing left. Not if it is a vertical arc arcing right.
+                    preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row + 2, Col = traversalPoint1.Col };
+                    //TODO!+ The following is only possible if the connected line is a horizontal arc arcing down. Not if it is a horizontal arc arcing up.
+                    preferredNext3 = new GridCoordinates { Row = traversalPoint1.Row, Col = traversalPoint1.Col - 2 };
+                }
+                else if (colDirection == 1)
+                {
+                    //TODO!~ The second and third case are when the connected line is an arc, either vertical or horizontal.
+                    // Note however, that the direction in which the arc bends, determines if it is a viable second point or not.
+                    // And you should not have both possible arcs connected.
+                    preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row + 1, Col = traversalPoint1.Col + 1 };
+                    preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row + 2, Col = traversalPoint1.Col };
+                    preferredNext3 = new GridCoordinates { Row = traversalPoint1.Row, Col = traversalPoint1.Col + 2 };
+                }
+            } 
             else if (rowDirection == +2 && colDirection == 0)
             {
                 // Direction is downwards. But is it downwards to the left, or downwards to the right?
@@ -164,33 +246,8 @@ namespace CelticKnotwork1
                     preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row + 2, Col = traversalPoint1.Col };
                 }
             }
-            else if (rowDirection == -2 && colDirection == 0)
-            {
-                // Direction is upwards. But is it upwards to the left, or upwards to the right?
 
-                LineSegment connector = knotwork.GetLine(traversalPoint0, traversalPoint1);
-
-                // Was the last line segment a vertical arc, arcing towards the left?
-                // Then our direction is towards the left.
-                if (connector is VerticalArcingLeft)
-                {
-                    preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row - 1, Col = traversalPoint1.Col + 1 };
-                    preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row - 2, Col = traversalPoint1.Col };
-                }
-
-                // Was the last line segment a vertical arc, arcing towards the right?
-                // Then our direction is towards the right.
-                else if (connector is VerticalArcingRight)
-                {
-                    preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row - 1, Col = traversalPoint1.Col - 1 };
-                    preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row - 2, Col = traversalPoint1.Col };
-                }
-            }
-            else if (rowDirection == 0 && colDirection == +2)
-            {
-                preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row + 1, Col = traversalPoint1.Col + 1 };
-                preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row, Col = traversalPoint1.Col + 2 };
-            }
+            
         }
 
         /// <summary>
@@ -238,24 +295,6 @@ namespace CelticKnotwork1
                 }
             }
         }
-
-        private void Form1_Paint(object sender, PaintEventArgs e)
-        {
-            bool drawGrid = true;
-            bool drawKnotwork = false;
-            Graphics g = e.Graphics;
-            Pen pen = new Pen(Color.Red, 1.0f);
-
-            if (drawGrid)
-            {
-                DrawGrid(g, pen, knotwork.Rows, knotwork.Cols, transform);
-            }
-            if (drawKnotwork)
-            {
-                DrawKnotwork(g, pen, knotwork, transform, m_extraLines);
-            }
-        }
-
 
         void DrawKnotwork(Graphics g, Pen pen, Knotwork knotwork, SimpleTransform transform, double? extraLines)
         {

@@ -88,14 +88,14 @@ namespace CelticKnotwork1
                 borderWidth = 1;
             }
 
-            bool drawSides = true; //TODO!- Temporary, for developing/debugging
-
+            // Draw the outer arcs on the top and bottom border.
             for (int col = 1; col < knotwork.Cols - 2; col += 2)
             {
                 knotwork.AddLine(0, col, new HorizontalArcingUp());
                 knotwork.AddLine(knotwork.Rows - 1, col, new HorizontalArcingDown());
             }
 
+            // Draw the outer arcs on the left and right border.
             for (int row = 1; row < knotwork.Rows - 2; row += 2)
             {
                 knotwork.AddLine(row, 0, new VerticalArcingLeft());
@@ -103,47 +103,44 @@ namespace CelticKnotwork1
             }
 
             // Draw the downward-going diagonals on the righthand side and the lefthand side.
-            if (drawSides)
+            for (int row = 1; row < knotwork.Rows - 2; row += 2)
             {
-                for (int row = 1; row < knotwork.Rows - 2; row += 2)
+                for (int i = 0; i < borderWidth; i++)
                 {
-                    for (int i = 0; i < borderWidth; i++)
-                    {
-                        if (row + i >= knotwork.Rows - i - 2)
-                            break;
+                    if (row + i >= knotwork.Rows - i - 2)
+                        break;
 
-                        // Draw the diagonals on the lefthand side.
-                        knotwork.AddLine(row + i, i, new DiagonalForwardDown());
-                        // Draw the diagonals on the righthand side.
-                        knotwork.AddLine(row + i, knotwork.Cols - 1 - i, new DiagonalBackwardDown());
-                    }
-                }
-
-                // Draw the upward-going diagonals on the righthand side and the lefthand side.
-                for (int row = knotwork.Rows - 2; row > 1; row -= 2)
-                {
-                    for (int i = 0; i < borderWidth; i++)
-                    {
-                        if (row - 1 - i < i + 1)
-                            break;
-
-                        // Draw the diagonals on the lefthand side.
-                        knotwork.AddLine(row - 1 - i, 1 + i, new DiagonalBackwardDown());
-                        // Draw the diagonals on the righthand side.
-                        knotwork.AddLine(row - 1 - i, knotwork.Cols - 2 - i, new DiagonalForwardDown());
-                    }
-                }
-
-                // Draw the arcs that close the lefthandside and righthandside borders.
-                for (int i = borderWidth; i < knotwork.Rows - borderWidth - 3; i += 2)
-                {
-                    knotwork.AddLine(i + 1, borderWidth, new VerticalArcingRight());
-                    knotwork.AddLine(i + 1, knotwork.Cols - borderWidth - 1, new VerticalArcingLeft());
+                    // Draw the diagonals on the lefthand side.
+                    knotwork.AddLine(row + i, i, new DiagonalForwardDown());
+                    // Draw the diagonals on the righthand side.
+                    knotwork.AddLine(row + i, knotwork.Cols - 1 - i, new DiagonalBackwardDown());
                 }
             }
 
+            // Draw the upward-going diagonals on the righthand side and the lefthand side.
+            for (int row = knotwork.Rows - 2; row > 1; row -= 2)
+            {
+                for (int i = 0; i < borderWidth; i++)
+                {
+                    if (row - 1 - i < i + 1)
+                        break;
+
+                    // Draw the diagonals on the lefthand side.
+                    knotwork.AddLine(row - 1 - i, 1 + i, new DiagonalBackwardDown());
+                    // Draw the diagonals on the righthand side.
+                    knotwork.AddLine(row - 1 - i, knotwork.Cols - 2 - i, new DiagonalForwardDown());
+                }
+            }
+
+            // Draw the arcs that close the lefthandside and righthandside borders.
+            for (int i = borderWidth; i < knotwork.Rows - borderWidth - 3; i += 2)
+            {
+                knotwork.AddLine(i + 1, borderWidth, new VerticalArcingRight());
+                knotwork.AddLine(i + 1, knotwork.Cols - borderWidth - 1, new VerticalArcingLeft());
+            }
+
             // Draw the forward-going diagonals for the top and the bottom.
-            for (int col = 1; col < knotwork.Cols - 2; col += 2 )
+            for (int col = 1; col < knotwork.Cols - 2; col += 2)
             {
                 for (int i = 0; i < borderWidth; i++)
                 {
@@ -160,11 +157,11 @@ namespace CelticKnotwork1
             {
                 for (int i = 0; i < borderWidth; i++)
                 {
-                    //TODO!+ Add a limiter. It draws too much now.
-                    //if (col + i > knotwork.Cols - 1)
-                        //break;
+                    if (col + i - 1 > knotwork.Cols - borderWidth - i + 2)
+                        break;
+
                     knotwork.AddLine(0 + i, col + i, new DiagonalBackwardDown());
-                    knotwork.AddLine(knotwork.Rows - 2 - i, col - 1 - i, new DiagonalForwardDown());
+                    knotwork.AddLine(knotwork.Rows - 2 - i, col + i - 1, new DiagonalForwardDown());
                 }
             }
 
@@ -180,12 +177,13 @@ namespace CelticKnotwork1
             for (int i = 0; i < borderWidth; i++)
             {
                 // Left top corner.
-                knotwork.AddLine(i + 1, i + 2, new DiagonalBackwardDown() );
+                knotwork.AddLine(i + 1, i + 2, new DiagonalBackwardDown());
                 // Top right corner.
                 knotwork.AddLine(i + 1, knotwork.Cols - 3 - i, new DiagonalForwardDown());
                 //TODO!+ Lower left corner. Not done yet because some of these lines are already drawn by the bordering code - and that part of the code shouldn't.
+                knotwork.AddLine(knotwork.Rows - 3 - i, i + 1, new DiagonalForwardDown());
                 // Lower right corner
-                knotwork.AddLine(knotwork.Rows - 3 - i, knotwork.Cols - 2 - i, new DiagonalBackwardDown()  );
+                knotwork.AddLine(knotwork.Rows - 3 - i, knotwork.Cols - 2 - i, new DiagonalBackwardDown());
             }
 
             return knotwork;
