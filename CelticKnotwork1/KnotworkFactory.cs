@@ -72,9 +72,21 @@ namespace CelticKnotwork1
             return knotwork;
         }
 
-        public static Knotwork SampleKnotwork2()
+        /// <summary>
+        /// Draws a border.
+        /// The border will only work proper if "rows" and "cols" are odd numbers.
+        /// </summary>
+        /// <param name="rows">An odd number specifying the number of rows the border has.</param>
+        /// <param name="cols">An odd number specifying the number of columns the border has.</param>
+        /// <param name="borderWidth">The width of the border, in grid points; should be at least 1.</param>
+        /// <returns></returns>
+        public static Knotwork SampleKnotwork2(int rows, int cols, int borderWidth)
         {
-            Knotwork knotwork = new Knotwork(21,25); //TODO!~ Parameterize
+            Knotwork knotwork = new Knotwork(rows, cols);
+            if (borderWidth <= 0)
+            {
+                borderWidth = 1;
+            }
 
             bool drawSides = true; //TODO!- Temporary, for developing/debugging
 
@@ -89,8 +101,6 @@ namespace CelticKnotwork1
                 knotwork.AddLine(row, 0, new VerticalArcingLeft());
                 knotwork.AddLine(row, knotwork.Cols - 1, new VerticalArcingRight());
             }
-
-            int borderWidth = 6;
 
             // Draw the downward-going diagonals on the righthand side and the lefthand side.
             if (drawSides)
@@ -159,14 +169,24 @@ namespace CelticKnotwork1
             }
 
 
-            //Draw the arcs at the inner end of the top and bottom borders.
+            // Draw the arcs at the inner end of the top and bottom borders.
             for (int col = borderWidth + 2; col < knotwork.Cols - borderWidth - 2; col += 2)
             {
                 knotwork.AddLine(borderWidth, col - 1, new HorizontalArcingDown());
                 knotwork.AddLine(knotwork.Rows - borderWidth - 1, col - 1, new HorizontalArcingUp());
             }
 
-            //TODO!+ Draw the line segments that connect the four borders.
+            // Draw the line segments that connect the four borders.
+            for (int i = 0; i < borderWidth; i++)
+            {
+                // Left top corner.
+                knotwork.AddLine(i + 1, i + 2, new DiagonalBackwardDown() );
+                // Top right corner.
+                knotwork.AddLine(i + 1, knotwork.Cols - 3 - i, new DiagonalForwardDown());
+                //TODO!+ Lower left corner. Not done yet because some of these lines are already drawn by the bordering code - and that part of the code shouldn't.
+                // Lower right corner
+                knotwork.AddLine(knotwork.Rows - 3 - i, knotwork.Cols - 2 - i, new DiagonalBackwardDown()  );
+            }
 
             return knotwork;
         }

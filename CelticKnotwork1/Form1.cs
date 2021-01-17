@@ -17,15 +17,15 @@ namespace CelticKnotwork1
         private GridCoordinates traversalPoint1;
         private bool colorFlipper = true;
         private Pen altPen;
-        private double? m_extraLines = 0.2;
+        private double? m_extraLines = null; //WAS: 0.2;
 
         public Form1()
         {
             InitializeComponent();
             Graphics g = this.CreateGraphics();
 
-            //knotwork = KnotworkFactory.SampleKnotwork1(9);
-            knotwork = KnotworkFactory.SampleKnotwork2();
+            knotwork = KnotworkFactory.SampleKnotwork1(9);
+            //knotwork = KnotworkFactory.SampleKnotwork2(51,25,1);
             transform = new SimpleTransform { XOffset = 50, XScale = 10, YOffset = 30, YScale = 10 };
 
             traversalPoint0 = originalPoint0;
@@ -75,8 +75,8 @@ namespace CelticKnotwork1
                 // Perhaps we should sort the list in order of "desirableness of direction".
                 // However, there is one point that is ALWAYS ruled out, and that is the point that we came from.
 
-                GridCoordinates preferredNext1, preferredNext2;
-                CalculatePreferredNextPoints(out preferredNext1, out preferredNext2);
+                GridCoordinates preferredNext1, preferredNext2, preferredNext3;
+                CalculatePreferredNextPoints(out preferredNext1, out preferredNext2, out preferredNext3);
 
                 if (connectedPoints.Contains(preferredNext1))
                 {
@@ -87,6 +87,11 @@ namespace CelticKnotwork1
                 {
                     traversalPoint0 = traversalPoint1;
                     traversalPoint1 = preferredNext2;
+                }
+                else if (connectedPoints.Contains(preferredNext3))
+                {
+                    traversalPoint0 = traversalPoint1;
+                    traversalPoint1 = preferredNext3;
                 }
             }
 
@@ -105,18 +110,20 @@ namespace CelticKnotwork1
 
         //TODO?~ Move this, make it a method of the Knotwork class?
         // Note that that requires making traverselPoint0 and traversalPoint1 parameters of this method.
-        private void CalculatePreferredNextPoints(out GridCoordinates preferredNext1, out GridCoordinates preferredNext2)
+        private void CalculatePreferredNextPoints(out GridCoordinates preferredNext1, out GridCoordinates preferredNext2, out GridCoordinates preferredNext3)
         {
             int rowDirection = traversalPoint1.Row - traversalPoint0.Row;
             int colDirection = traversalPoint1.Col - traversalPoint0.Col;
 
             preferredNext1 = null;
             preferredNext2 = null;
+            preferredNext3 = null;
 
             if (rowDirection == 1 && colDirection == 1)
             {
                 preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row + 1, Col = traversalPoint1.Col + 1 };
                 preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row + 2, Col = traversalPoint1.Col };
+                preferredNext3 = new GridCoordinates { Row = traversalPoint1.Row, Col = traversalPoint1.Col + 2 };
             }
             else if (rowDirection == 1 && colDirection == -1)
             {
@@ -179,6 +186,11 @@ namespace CelticKnotwork1
                     preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row - 2, Col = traversalPoint1.Col };
                 }
             }
+            else if (rowDirection == 0 && colDirection == +2)
+            {
+                preferredNext1 = new GridCoordinates { Row = traversalPoint1.Row + 1, Col = traversalPoint1.Col + 1 };
+                preferredNext2 = new GridCoordinates { Row = traversalPoint1.Row, Col = traversalPoint1.Col + 2 };
+            }
         }
 
         /// <summary>
@@ -230,7 +242,7 @@ namespace CelticKnotwork1
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             bool drawGrid = true;
-            bool drawKnotwork = true;
+            bool drawKnotwork = false;
             Graphics g = e.Graphics;
             Pen pen = new Pen(Color.Red, 1.0f);
 
