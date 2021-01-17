@@ -17,32 +17,32 @@ namespace CelticKnotwork1
         private GridCoordinates traversalPoint1;
         private bool colorFlipper = true;
         private Pen altPen;
-        private double? m_extraLines = null; //WAS: 0.2;
+        private double? m_extraLines = 0.2;
 
         public Form1()
         {
             InitializeComponent();
             Graphics g = this.CreateGraphics();
 
-            //knotwork = KnotworkFactory.SampleKnotwork1(9);
-            knotwork = KnotworkFactory.SampleKnotwork2(51,25,4);
+            knotwork = KnotworkFactory.SampleKnotwork1(9);
+            //knotwork = KnotworkFactory.SampleKnotwork2(11,11,1);
             transform = new SimpleTransform { XOffset = 50, XScale = 10, YOffset = 30, YScale = 10 };
 
             traversalPoint0 = originalPoint0;
             traversalPoint1 = originalPoint1;
 
             this.Paint += Form1_Paint;
-            this.timer1.Interval = 25;// WAS: 125;
+            this.timer1.Interval = 125;// WAS: 125;
             this.timer1.Tick += Timer1_Tick;
-            //this.timer1.Start();
+            this.timer1.Start();
         }
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
-            bool drawGrid = true;
-            bool drawKnotwork = true;
+            bool drawGrid = false;
+            bool drawKnotwork = false;
             Graphics g = e.Graphics;
-            Pen pen = new Pen(Color.Black, 1.0f);
+            Pen pen = new Pen(Color.IndianRed, 1.0f);
 
             if (drawGrid)
             {
@@ -65,7 +65,185 @@ namespace CelticKnotwork1
                 colorFlipper = !colorFlipper;
             }
 
+            //Original_Traversal(g);
 
+            New_Traversal(g);
+        }
+
+        void New_Traversal(Graphics g)
+        {
+            // Find all points that are connected to the current point.
+            List<GridCoordinates> connectedPoints = knotwork.GetConnectionsFor(traversalPoint1).ToList();
+            // Remove the link to the point that you came from; this is the only one guaranteed not to be the one you need to visit next.
+            connectedPoints = connectedPoints.FindAll(x => !x.Equals(traversalPoint0));
+            // If there's only one point left, then that is where we must go.
+            if (connectedPoints.Count == 1)
+            {
+                traversalPoint0 = traversalPoint1;
+                traversalPoint1 = connectedPoints[0];
+            }
+            else
+            {
+                //TODO!+
+
+                LineSegment lineSegment = knotwork.GetLine(traversalPoint0, traversalPoint1);
+
+                // Find the direction that our Line Segment has at traversalPoint1.
+                Direction? currentDirection = LineSegmentDirectionAtPointQ(knotwork, traversalPoint0, traversalPoint1);
+                if (currentDirection == null)
+                {
+                    //TODO!+ Issue a warning.
+                    return;
+                }
+
+                // Then find the connected points that have a connection in the same/opposite direction at traversalPoint1.
+                // There should be only 1, and that should be the next Line Segment.
+                foreach (GridCoordinates connectedPoint in connectedPoints)
+                {
+                    LineSegment candidate = knotwork.GetLine(traversalPoint1, connectedPoint);
+                    Direction? connectedDirection = LineSegmentDirectionAtPointQ(knotwork, connectedPoint, traversalPoint1);
+                    if (connectedDirection == null)
+                    {
+                        //TODO!+ Issue a warning.
+                        return;
+                    }
+
+                    if (sameAxis(currentDirection.Value, connectedDirection.Value))
+                    {
+                        // Success!
+                        traversalPoint0 = traversalPoint1;
+                        traversalPoint1 = connectedPoint;
+                        break;
+                    }
+                }
+            }
+
+            // For robustness... we'd rather stop the animation, than crash.
+            if (traversalPoint1 == null)
+            {
+                traversalPoint1 = new GridCoordinates { Row = -1, Col = -1 };
+            }
+            else
+            {
+                DrawConnection(g, altPen, transform, knotwork, traversalPoint0, traversalPoint1, m_extraLines);
+            }
+        }
+
+        bool sameAxis(Direction dir1, Direction dir2)
+        {
+            if (dir1.Equals(dir2))
+            {
+                return true;
+            }
+
+            switch (dir1)
+            {
+                case Direction.North:
+                    return dir2.Equals(Direction.South);
+                case Direction.NorthEast:
+                    return dir2.Equals(Direction.SouthWest);
+                case Direction.East:
+                    return dir2.Equals(Direction.West);
+                case Direction.SouthEast:
+                    return dir2.Equals(Direction.NorthWest);
+                case Direction.South:
+                    return dir2.Equals(Direction.North);
+                case Direction.SouthWest:
+                    return dir2.Equals(Direction.NorthEast);
+                case Direction.West:
+                    return dir2.Equals(Direction.East);
+                case Direction.NorthWest:
+                    return dir2.Equals(Direction.SouthEast);
+            }
+
+            // Should never reach here...
+            //TODO?+ Issue an error
+            return false;
+        }
+
+        //TODO!~ Find a way to do this using polymorphism.
+        // We may have to specify the points as parameters to the LineSegment method to do this.
+        /// <summary>
+        /// Given a LineSegment from point P to point Q, give the direction that the LineSegment has at point Q.
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="q"></param>
+        /// <returns>The direction that the line segment has at <paramref name="q"/>; or <code>null</code> if there is no line segment from p to q.</returns>
+        Direction? LineSegmentDirectionAtPointQ(Knotwork knotwork, GridCoordinates p, GridCoordinates q)
+        {
+            LineSegment l = knotwork.GetLine(p, q);
+            if (l == null)
+            {
+                return null;
+            }
+            if (l is DiagonalForwardDown)
+            {
+                return Direction.SouthEast; // Note that it might also be NorthWest; what matters is the axis along which it goes.
+            }
+            else if (l is DiagonalBackwardDown)
+            {
+                return Direction.SouthWest; // Again, what matters is the axis along which the diagonal goes; so it may also be NorthEast.
+            }
+            else if (l is VerticalArcingLeft)
+            {
+                // In this case, the direction at q will always be somewhat to the East; but northeast or southeast?
+                // That depends on whether q is higher or lower than p.
+                if (p.Row < q.Row)
+                {
+                    return Direction.SouthEast;
+                }
+                else
+                {
+                    return Direction.NorthEast;
+                }
+            }
+            else if (l is VerticalArcingRight)
+            {
+                // In this case, the direction at q will always to somwewhat to the west; but is it northwest or southwest? 
+                // Again, that depends on whether q is higher or lower than p.
+                if (p.Row < q.Row)
+                {
+                    return Direction.SouthWest;
+                }
+                else
+                {
+                    return Direction.NorthWest;
+                }
+            }
+            else if (l is HorizontalArcingUp)
+            {
+                // In this case, the direction at q will always be somewhat to the south. But is it southeast or southwest?
+                // That depends on whether p is to the left of q, or to the right.
+                if (p.Col < q.Col)
+                {
+                    return Direction.SouthEast;
+                }
+                else
+                {
+                    return Direction.SouthWest;
+                }
+            }
+            else if (l is HorizontalArcingDown)
+            {
+                // In this case, the direction at q will always be somewhat to the south. But is it northeast or northwest?
+                // That depends on whether p is to the left of q, or to the right.
+                if (p.Col < q.Col)
+                {
+                    return Direction.NorthEast;
+                }
+                else
+                {
+                    return Direction.NorthWest;
+                }
+            }
+
+            // Should never reach here...
+            return null;
+        }
+
+        //TODO!- Replaced with the new, more intuitive algorithm.
+        void Original_Traversal(Graphics g)
+        {
             // First, find all points that are connected to the current point.
             List<GridCoordinates> connectedPoints = knotwork.GetConnectionsFor(traversalPoint1).ToList();
 
@@ -112,8 +290,6 @@ namespace CelticKnotwork1
                 }
             }
 
-
-
             // For robustness... we'd rather stop the animation, than crash.
             if (traversalPoint1 == null)
             {
@@ -125,7 +301,7 @@ namespace CelticKnotwork1
             }
         }
 
-        //TODO?~ Move this, make it a method of the Knotwork class?
+        //TODO!- Caller is replaced by a new, more intuitive algorithm.
         // Note that that requires making traverselPoint0 and traversalPoint1 parameters of this method.
         private void CalculatePreferredNextPoints(out GridCoordinates preferredNext1, out GridCoordinates preferredNext2, out GridCoordinates preferredNext3)
         {
@@ -286,6 +462,7 @@ namespace CelticKnotwork1
                 if (p1.Col > p0.Col)
                 {
                     GridCoordinates p = new GridCoordinates { Col = p0.Col + 1, Row = p0.Row + 1 };
+                    //GridCoordinates p = new GridCoordinates { Col = p0.Col + 1, Row = p0.Row - 1 };
                     l.Paint2(g, pen, p, transform, extraLines);
                 }
                 else
