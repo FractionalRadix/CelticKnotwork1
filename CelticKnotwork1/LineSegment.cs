@@ -108,12 +108,24 @@ namespace CelticKnotwork1
         {
             int xCoor = transform.XOffset + transform.XScale * start.Col;
             int yCoor = transform.YOffset + transform.YScale * start.Row;
+            Point p0 = transform.Apply(start.Col, start.Row);
+            Point p1 = transform.Apply(start.Col + 1, start.Row + 1);
 
-            g.DrawLine(pen, xCoor, yCoor, xCoor + transform.XScale, yCoor + transform.YScale);
+            //g.DrawLine(pen, xCoor, yCoor, xCoor + transform.XScale, yCoor + transform.YScale);
+            g.DrawLine(pen, p0, p1);
             if (extraLines != null)
             {
                 g.DrawLine(pen, xCoor - 4, yCoor, xCoor + transform.XScale - 4, yCoor + transform.YScale);
+                //PointF p0Left = new PointF(p0.X - (float) extraLines.Value, p0.Y);
+                //PointF p1Left = new PointF(p1.X - (float) extraLines.Value, p1.Y);
+                //g.DrawLine(pen, p0Left, p1Left);
+
+
                 g.DrawLine(pen, xCoor + 4, yCoor, xCoor + transform.XScale + 4, yCoor + transform.YScale);
+                //PointF p0Right = new PointF(p0.X + (float)extraLines.Value, p0.Y);
+                //PointF p1Right = new PointF(p1.X + (float)extraLines.Value, p1.Y);
+                //g.DrawLine(pen, p0Right, p1Right);
+
             }
         }
 
@@ -353,24 +365,3 @@ namespace CelticKnotwork1
         }
     }
 }
-
-
-//private void DrawHorizontalUpwardsArc(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double? extraLines)
-//{
-//    DrawQuarterCircle(g, pen, transform, p0, 1.25, extraLines);
-//}
-
-//private void DrawHorizontalDownwardsArc(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double? extraLines)
-//{
-//    DrawQuarterCircle(g, pen, transform, p0, 0.25, extraLines);
-//}
-
-//private void DrawVerticalLeftwardsArc(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double? extraLines)
-//{
-//    DrawQuarterCircle(g, pen, transform, p0, 0.75, extraLines);
-//}
-
-//private void DrawVerticalRightwardsArc(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double? extraLines)
-//{
-//    DrawQuarterCircle(g, pen, transform, p0, 1.75, extraLines);
-//}

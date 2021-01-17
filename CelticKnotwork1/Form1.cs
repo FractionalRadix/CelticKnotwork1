@@ -24,8 +24,8 @@ namespace CelticKnotwork1
             InitializeComponent();
             Graphics g = this.CreateGraphics();
 
-            knotwork = KnotworkFactory.SampleKnotwork1(9);
-            //knotwork = KnotworkFactory.SampleKnotwork2();
+            //knotwork = KnotworkFactory.SampleKnotwork1(9);
+            knotwork = KnotworkFactory.SampleKnotwork2();
             transform = new SimpleTransform { XOffset = 50, XScale = 10, YOffset = 30, YScale = 10 };
 
             traversalPoint0 = originalPoint0;
@@ -229,10 +229,10 @@ namespace CelticKnotwork1
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
-            bool drawGrid = false;
-            bool drawKnotwork = false;
+            bool drawGrid = true;
+            bool drawKnotwork = true;
             Graphics g = e.Graphics;
-            Pen pen = new Pen(Color.Black, 1.0f);
+            Pen pen = new Pen(Color.Red, 1.0f);
 
             if (drawGrid)
             {

@@ -5,7 +5,6 @@ using System.Text;
 
 namespace CelticKnotwork1
 {
-    //TODO!+ Check if it would be mathematically correct, to rename this "LinearTransformation2D".
     class SimpleTransform
     {
         public int XOffset { get; set; }
