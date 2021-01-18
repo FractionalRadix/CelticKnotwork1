@@ -17,22 +17,22 @@ namespace CelticKnotwork1
         private GridCoordinates traversalPoint1;
         private bool colorFlipper = true;
         private Pen altPen;
-        private double? m_extraLines = 0.2;
+        private double? m_extraLines = null; // WAS: 0.2;
 
         public Form1()
         {
             InitializeComponent();
             Graphics g = this.CreateGraphics();
 
-            knotwork = KnotworkFactory.SampleKnotwork1(9);
-            //knotwork = KnotworkFactory.SampleKnotwork2(11,11,1);
+            //knotwork = KnotworkFactory.SampleKnotwork1(9);
+            knotwork = KnotworkFactory.SampleKnotwork2(47,25,3); //TODO!+ These parameters work pretty well, but traversal stops in the top left corner??
             transform = new SimpleTransform { XOffset = 50, XScale = 10, YOffset = 30, YScale = 10 };
 
             traversalPoint0 = originalPoint0;
             traversalPoint1 = originalPoint1;
 
             this.Paint += Form1_Paint;
-            this.timer1.Interval = 125;// WAS: 125;
+            this.timer1.Interval = 25;// WAS: 125;
             this.timer1.Tick += Timer1_Tick;
             this.timer1.Start();
         }
@@ -70,12 +70,30 @@ namespace CelticKnotwork1
             New_Traversal(g);
         }
 
+        List<GridCoordinates> removeDoubles(List<GridCoordinates> orig)
+        {
+            List<GridCoordinates> res = new List<GridCoordinates>();
+            foreach (GridCoordinates p in orig)
+            {
+                if (!res.Contains(p))
+                {
+                    res.Add(p);
+                }
+            }
+            return res;
+        }
+
         void New_Traversal(Graphics g)
         {
             // Find all points that are connected to the current point.
             List<GridCoordinates> connectedPoints = knotwork.GetConnectionsFor(traversalPoint1).ToList();
             // Remove the link to the point that you came from; this is the only one guaranteed not to be the one you need to visit next.
             connectedPoints = connectedPoints.FindAll(x => !x.Equals(traversalPoint0));
+
+            // Remove doubles.
+            //TODO?~ See if there isn't a nice lambda expression for this.
+            connectedPoints = removeDoubles(connectedPoints);
+
             // If there's only one point left, then that is where we must go.
             if (connectedPoints.Count == 1)
             {
@@ -84,8 +102,6 @@ namespace CelticKnotwork1
             }
             else
             {
-                //TODO!+
-
                 LineSegment lineSegment = knotwork.GetLine(traversalPoint0, traversalPoint1);
 
                 // Find the direction that our Line Segment has at traversalPoint1.
