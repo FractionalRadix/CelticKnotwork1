@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -17,7 +18,12 @@ namespace CelticKnotwork1
         private GridCoordinates traversalPoint1;
         private bool colorFlipper = true;
         private Pen altPen;
-        private double? m_extraLines = 0.2; // null; // WAS: 0.2;
+        private double? m_extraLines = 0.2; // null;
+
+        //private String svgFile = "C:\\Gebruikers\\Gebruiker\\Bureaublad\\knotwork.html";
+        private String svgFile = "D:\\knotwork1.html";
+        private StreamWriter sw;
+        private int traversalCounter = 0;
 
         public Form1()
         {
@@ -25,11 +31,27 @@ namespace CelticKnotwork1
             Graphics g = this.CreateGraphics();
 
             //knotwork = KnotworkFactory.SampleKnotwork1(9);
-            knotwork = KnotworkFactory.SampleKnotwork2(47,25,3); //TODO!+ These parameters work pretty well, but traversal stops in the top left corner??
+            knotwork = KnotworkFactory.SampleKnotwork2(47,25,3); // These parameters yield a border that consists of a single line.
             transform = new SimpleTransform { XOffset = 50, XScale = 10, YOffset = 30, YScale = 10 };
 
             traversalPoint0 = originalPoint0;
             traversalPoint1 = originalPoint1;
+
+            if (File.Exists(svgFile))
+            {
+                File.Delete(svgFile);
+            }
+            sw = File.CreateText(svgFile);
+            sw.WriteLine( "<!DOCTYPE html>");
+            sw.WriteLine( "<html>");
+            sw.WriteLine( "  <head>");
+            sw.WriteLine( "    <meta charset=\"utf-8\">");
+            sw.WriteLine( "  </head>");
+            sw.WriteLine( "  <body>");
+            sw.WriteLine("    <svg width=\"600\" height=\"800\" >"); //TODO!+  Parameterize the size...
+            // I am deliberately NOT using SVG's "transform" option to apply the scaling and the translation.
+            // While it might work for the translation, when scaling lines it scales both the size and the WIDTH of the lines - resulting in very broad lines.
+
 
             this.Paint += Form1_Paint;
             this.timer1.Interval = 150;// WAS: 125;
@@ -63,6 +85,17 @@ namespace CelticKnotwork1
             {
                 altPen = colorFlipper ? new Pen(Color.Black) : new Pen(Color.DarkGoldenrod);
                 colorFlipper = !colorFlipper;
+
+                traversalCounter++;
+
+                if (traversalCounter == 2)
+                {
+                    sw.WriteLine("    </svg>");
+                    sw.WriteLine("  </body>");
+                    sw.WriteLine("</html>");
+                    sw.Flush();
+                    sw.Close();
+                }
             }
 
             Traverse(g);
@@ -279,11 +312,22 @@ namespace CelticKnotwork1
             if (p1.Row > p0.Row)
             {
                 l.Paint2(g, pen, p0, transform, extraLines);
+
+                if (traversalCounter == 1)
+                {
+                    String svgLine = l.generateSVG(p0, transform);
+                    sw.WriteLine(svgLine);
+                }
             }
             // If we are moving upward. "l" can be a vertical arc or a diagonal.
             else if (p1.Row < p0.Row)
             {
                 l.Paint2(g, pen, p1, transform, extraLines);
+
+                if (traversalCounter == 1)
+                {
+                    sw.WriteLine(l.generateSVG(p1, transform));
+                }
             }
             else
             {
@@ -299,7 +343,13 @@ namespace CelticKnotwork1
                     {
                         p = new GridCoordinates { Col = p0.Col + 1, Row = p0.Row + 1 };
                     }
+
                     l.Paint2(g, pen, p, transform, extraLines);
+
+                    if (traversalCounter == 1)
+                    {
+                        sw.WriteLine(l.generateSVG(p, transform));
+                    }
                 }
                 else
                 {
@@ -313,7 +363,13 @@ namespace CelticKnotwork1
                     {
                         p = new GridCoordinates { Col = p0.Col - 1, Row = p0.Row + 1 };
                     }
+
                     l.Paint2(g, pen, p, transform, extraLines);
+
+                    if (traversalCounter == 1)
+                    {
+                        sw.WriteLine(l.generateSVG(p, transform));
+                    }
                 }
             }
         }

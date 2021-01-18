@@ -16,7 +16,9 @@ namespace CelticKnotwork1
         public abstract void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines);
 
         public abstract void Paint2(Graphics g, Pen pen,  GridCoordinates start, SimpleTransform transform, double? extraLines);
-            
+
+        public abstract String generateSVG(GridCoordinates start, SimpleTransform transform);
+
         /// <summary>
         /// Given a point on the grid, determine the grid point that this line segment would connect it to.
         /// </summary>
@@ -190,6 +192,14 @@ namespace CelticKnotwork1
 
         }
 
+        public override String generateSVG(GridCoordinates start, SimpleTransform transform)
+        {
+            //return $"<line x1=\"{start.Col}\" y1=\"{start.Row}\" x2=\"{start.Col+1}\" y2=\"{start.Row+1}\" stroke=\"black\"/>";
+
+            Point p1 = transform.Apply(start.Col, start.Row);
+            Point p2 = transform.Apply(Target(start).Col, Target(start).Row);
+            return $"<line x1=\"{p1.X}\" y1=\"{p1.Y}\" x2=\"{p2.X}\" y2=\"{p2.Y}\" stroke=\"black\"/>";
+        }
 
         public override GridCoordinates Target(GridCoordinates source)
         {
@@ -266,6 +276,16 @@ namespace CelticKnotwork1
             }
         }
 
+        public override String generateSVG(GridCoordinates start, SimpleTransform transform)
+        {
+            //return $"<line x1=\"{start.Col}\" y1=\"{start.Row}\" x2=\"{start.Col - 1}\" y2=\"{start.Row + 1}\" stroke=\"black\"/>";
+
+            Point p1 = transform.Apply(start.Col, start.Row);
+            Point p2 = transform.Apply(Target(start).Col, Target(start).Row);
+            return $"<line x1=\"{p1.X}\" y1=\"{p1.Y}\" x2=\"{p2.X}\" y2=\"{p2.Y}\" stroke=\"black\"/>";
+
+        }
+
         public override GridCoordinates Target(GridCoordinates source)
         {
             return new GridCoordinates { Row = source.Row + 1, Col = source.Col - 1 };
@@ -304,6 +324,11 @@ namespace CelticKnotwork1
         {
             GridCoordinates newStart = new GridCoordinates { Col = start.Col + 1, Row = start.Row + 1 };
             DrawQuarterCircle(g, pen, transform, newStart, 0.75, extraLines);
+        }
+
+        public override String generateSVG(GridCoordinates start, SimpleTransform transform)
+        {
+            return null; //TODO!~
         }
 
         public override GridCoordinates Target(GridCoordinates source)
@@ -346,6 +371,11 @@ namespace CelticKnotwork1
             DrawQuarterCircle(g, pen, transform, newStart, 1.75, extraLines);
         }
 
+        public override String generateSVG(GridCoordinates start, SimpleTransform transform)
+        {
+            return null; //TODO!~
+        }
+
         public override GridCoordinates Target(GridCoordinates source)
         {
             return new GridCoordinates { Row = source.Row + 2, Col = source.Col };
@@ -385,6 +415,11 @@ namespace CelticKnotwork1
             DrawQuarterCircle(g, pen, transform, start, 1.25, extraLines);
         }
 
+        public override String generateSVG(GridCoordinates start, SimpleTransform transform)
+        {
+            return null; //TODO!~
+        }
+
         public override GridCoordinates Target(GridCoordinates source)
         {
             return new GridCoordinates { Row = source.Row, Col = source.Col + 2 };
@@ -422,6 +457,11 @@ namespace CelticKnotwork1
         public override void Paint2(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
             DrawQuarterCircle(g, pen, transform, start, 0.25, extraLines);
+        }
+
+        public override String generateSVG(GridCoordinates start, SimpleTransform transform)
+        {
+            return null; //TODO!~
         }
 
         public override GridCoordinates Target(GridCoordinates source)
