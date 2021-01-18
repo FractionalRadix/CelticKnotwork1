@@ -280,8 +280,9 @@ namespace CelticKnotwork1
         {
             //return $"<line x1=\"{start.Col}\" y1=\"{start.Row}\" x2=\"{start.Col - 1}\" y2=\"{start.Row + 1}\" stroke=\"black\"/>";
 
+            GridCoordinates target = Target(start);
             Point p1 = transform.Apply(start.Col, start.Row);
-            Point p2 = transform.Apply(Target(start).Col, Target(start).Row);
+            Point p2 = transform.Apply(target.Col, target.Row);
             return $"<line x1=\"{p1.X}\" y1=\"{p1.Y}\" x2=\"{p2.X}\" y2=\"{p2.Y}\" stroke=\"black\"/>";
 
         }
@@ -328,7 +329,13 @@ namespace CelticKnotwork1
 
         public override String generateSVG(GridCoordinates start, SimpleTransform transform)
         {
-            return null; //TODO!~
+            GridCoordinates target = Target(start);
+            Point p1 = transform.Apply(start.Col, start.Row);
+            Point p2 = transform.Apply(target.Col, target.Row);
+            int len = Math.Abs( p2.Y - p1.Y );
+            Point control = new Point((int) (p1.X - 0.5 * len), (int) (p1.Y + 0.5 * len));
+            String res = $"<path d=\"M {p1.X} {p1.Y} Q {control.X} {control.Y} {p2.X} {p2.Y}\" stroke=\"black\" fill=\"none\"/>";
+            return res;
         }
 
         public override GridCoordinates Target(GridCoordinates source)
@@ -373,7 +380,13 @@ namespace CelticKnotwork1
 
         public override String generateSVG(GridCoordinates start, SimpleTransform transform)
         {
-            return null; //TODO!~
+            GridCoordinates target = Target(start);
+            Point p1 = transform.Apply(start.Col, start.Row);
+            Point p2 = transform.Apply(target.Col, target.Row);
+            int len = Math.Abs(p2.Y - p1.Y);
+            Point control = new Point((int)(p1.X + 0.5 * len), (int)(p1.Y + 0.5 * len));
+            String res = $"<path d=\"M {p1.X} {p1.Y} Q {control.X} {control.Y} {p2.X} {p2.Y}\" stroke=\"black\" fill=\"none\"/>";
+            return res;
         }
 
         public override GridCoordinates Target(GridCoordinates source)
@@ -417,7 +430,13 @@ namespace CelticKnotwork1
 
         public override String generateSVG(GridCoordinates start, SimpleTransform transform)
         {
-            return null; //TODO!~
+            GridCoordinates target = Target(start);
+            Point p1 = transform.Apply(start.Col - 1, start.Row - 1);
+            Point p2 = transform.Apply(target.Col - 1, target.Row - 1);
+            int len = Math.Abs(p2.X - p1.X);
+            Point control = new Point((int)(p1.X + 0.5 * len), (int)(p1.Y - 0.5 * len));
+            String res = $"<path d=\"M {p1.X} {p1.Y} Q {control.X} {control.Y} {p2.X} {p2.Y}\" stroke=\"black\" fill=\"none\"/>";
+            return res;
         }
 
         public override GridCoordinates Target(GridCoordinates source)
@@ -461,7 +480,13 @@ namespace CelticKnotwork1
 
         public override String generateSVG(GridCoordinates start, SimpleTransform transform)
         {
-            return null; //TODO!~
+            GridCoordinates target = Target(start);
+            Point p1 = transform.Apply(start.Col - 1, start.Row + 1);
+            Point p2 = transform.Apply(target.Col - 1, target.Row + 1);
+            int len = Math.Abs(p2.X - p1.X);
+            Point control = new Point((int)(p1.X + 0.5 * len), (int)(p1.Y + 0.5 * len));
+            String res = $"<path d=\"M {p1.X} {p1.Y} Q {control.X} {control.Y} {p2.X} {p2.Y}\" stroke=\"black\" fill=\"none\"/>";
+            return res;
         }
 
         public override GridCoordinates Target(GridCoordinates source)
