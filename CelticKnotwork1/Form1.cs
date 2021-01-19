@@ -23,16 +23,11 @@ namespace CelticKnotwork1
         //private String svgFile = "C:\\Gebruikers\\Gebruiker\\Bureaublad\\knotwork.html";
         private String svgFile = "D:\\knotwork1.html";
         private StreamWriter sw;
-        private int traversalCounter = 0;
 
         public Form1()
         {
             InitializeComponent();
             Graphics g = this.CreateGraphics();
-
-            //TODO?~ The code for drawing in LineSegment makes a number of compensations.
-            // It's very well possible that a number of compensations in the drawing code here, and in the drawing code for LineSegment classes,
-            // cancel each other out.
 
             //knotwork = KnotworkFactory.SampleKnotwork1(9);
             knotwork = KnotworkFactory.SampleKnotwork2(47,25,3); // These parameters yield a border that consists of a single line.
@@ -41,23 +36,8 @@ namespace CelticKnotwork1
             traversalPoint0 = originalPoint0;
             traversalPoint1 = originalPoint1;
 
-            if (File.Exists(svgFile))
-            {
-                File.Delete(svgFile);
-            }
-            sw = File.CreateText(svgFile);
-            sw.WriteLine( "<!DOCTYPE html>");
-            sw.WriteLine( "<html>");
-            sw.WriteLine( "  <head>");
-            sw.WriteLine( "    <meta charset=\"utf-8\">");
-            sw.WriteLine( "  </head>");
-            sw.WriteLine( "  <body>");
-            sw.WriteLine("    <svg width=\"600\" height=\"800\" >"); //TODO!+  Parameterize the size...
-            // I am deliberately NOT using SVG's "transform" option to apply the scaling and the translation.
-            // While it might work for the translation, when scaling lines it scales both the size and the WIDTH of the lines - resulting in very broad lines.
+            GenerateSvgInOrderOfTraversal();
 
-            //TODO!+ I could still add "<g stroke=\"black\" fill=\"none\">" .  
-            // Then I would not have to add this to every single one of the quadratic Bézier curves... saving some space and string operations.
             this.Paint += Form1_Paint;
             this.timer1.Interval = 100;// WAS: 125;
             this.timer1.Tick += Timer1_Tick;
@@ -81,6 +61,50 @@ namespace CelticKnotwork1
             }
         }
 
+        void GenerateSvgInOrderOfTraversal()
+        {
+            if (File.Exists(svgFile))
+            {
+                File.Delete(svgFile);
+            }
+            sw = File.CreateText(svgFile);
+            sw.WriteLine("<!DOCTYPE html>");
+            sw.WriteLine("<html>");
+            sw.WriteLine("  <head>");
+            sw.WriteLine("    <meta charset=\"utf-8\">");
+            sw.WriteLine("  </head>");
+            sw.WriteLine("  <body>");
+            sw.WriteLine("    <svg width=\"600\" height=\"800\" >"); //TODO!+  Parameterize the size...
+                                                                     // I am deliberately NOT using SVG's "transform" option to apply the scaling and the translation.
+                                                                     // While it might work for the translation, when scaling lines it scales both the size and the WIDTH of the lines - resulting in very broad lines.
+
+            //TODO!+ I could still add "<g stroke=\"black\" fill=\"none\">" .  
+            // Then I would not have to add this to every single one of the quadratic Bézier curves... saving some space and string operations.
+
+
+            bool ready;
+            traversalPoint0 = originalPoint0;
+            traversalPoint1 = originalPoint1;
+
+            do
+            {
+                GridCoordinates tmp = Traverse(traversalPoint0);
+                traversalPoint0 = traversalPoint1;
+                traversalPoint1 = tmp;
+
+                GenerateSvgForConnection(transform, knotwork, traversalPoint0, traversalPoint1, m_extraLines);
+
+                ready = traversalPoint0.Equals(originalPoint0) && traversalPoint1.Equals(traversalPoint1);
+            } while (!ready);
+
+            sw.WriteLine("    </svg>");
+            sw.WriteLine("  </body>");
+            sw.WriteLine("</html>");
+            sw.Flush();
+            sw.Close();
+        }
+
+
         private void Timer1_Tick(object sender, EventArgs e)
         {
             Graphics g = CreateGraphics();
@@ -90,20 +114,22 @@ namespace CelticKnotwork1
             {
                 altPen = colorFlipper ? new Pen(Color.Black) : new Pen(Color.DarkGoldenrod);
                 colorFlipper = !colorFlipper;
-
-                traversalCounter++;
-
-                if (traversalCounter == 2)
-                {
-                    sw.WriteLine("    </svg>");
-                    sw.WriteLine("  </body>");
-                    sw.WriteLine("</html>");
-                    sw.Flush();
-                    sw.Close();
-                }
             }
 
-            Traverse(g);
+            GridCoordinates tmp = Traverse(traversalPoint0);
+            traversalPoint0 = traversalPoint1;
+            traversalPoint1 = tmp;
+
+
+            // For robustness... we'd rather stop the animation, than crash.
+            if (traversalPoint1 == null)
+            {
+                traversalPoint1 = new GridCoordinates { Row = -1, Col = -1 };
+            }
+            else
+            {
+                DrawConnection(g, altPen, transform, knotwork, traversalPoint0, traversalPoint1, m_extraLines);
+            }
         }
 
         List<GridCoordinates> removeDoubles(List<GridCoordinates> orig)
@@ -119,7 +145,7 @@ namespace CelticKnotwork1
             return res;
         }
 
-        void Traverse(Graphics g)
+        GridCoordinates Traverse(GridCoordinates traversalPoint0)
         {
             // Find all points that are connected to the current point.
             List<GridCoordinates> connectedPoints = knotwork.GetConnectionsFor(traversalPoint1).ToList();
@@ -127,14 +153,12 @@ namespace CelticKnotwork1
             connectedPoints = connectedPoints.FindAll(x => !x.Equals(traversalPoint0));
 
             // Remove doubles.
-            //TODO?~ See if there isn't a nice lambda expression for this.
             connectedPoints = removeDoubles(connectedPoints);
 
             // If there's only one point left, then that is where we must go.
             if (connectedPoints.Count == 1)
             {
-                traversalPoint0 = traversalPoint1;
-                traversalPoint1 = connectedPoints[0];
+                return connectedPoints[0];
             }
             else
             {
@@ -145,7 +169,7 @@ namespace CelticKnotwork1
                 if (currentDirection == null)
                 {
                     //TODO!+ Issue a warning.
-                    return;
+                    return null;
                 }
 
                 // Then find the connected points that have a connection in the same/opposite direction at traversalPoint1.
@@ -157,32 +181,18 @@ namespace CelticKnotwork1
                     if (connectedDirection == null)
                     {
                         //TODO!+ Issue a warning.
-                        return;
+                        return null;
                     }
 
                     if (sameAxis(currentDirection.Value, connectedDirection.Value))
                     {
                         // Success!
-                        traversalPoint0 = traversalPoint1;
-                        traversalPoint1 = connectedPoint;
-                        break;
+                        return connectedPoint;
                     }
                 }
             }
 
-            // For robustness... we'd rather stop the animation, than crash.
-            if (traversalPoint1 == null)
-            {
-                traversalPoint1 = new GridCoordinates { Row = -1, Col = -1 };
-            }
-            else
-            {
-                DrawConnection(g, altPen, transform, knotwork, traversalPoint0, traversalPoint1, m_extraLines);
-                if (traversalCounter == 1)
-                {
-                    GenerateSvgForConnection(transform, knotwork, traversalPoint0, traversalPoint1, m_extraLines);
-                }
-            }
+            return null;
         }
 
         bool sameAxis(Direction dir1, Direction dir2)
