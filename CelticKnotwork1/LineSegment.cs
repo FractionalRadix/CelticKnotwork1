@@ -13,7 +13,7 @@ namespace CelticKnotwork1
     /// </summary>
     abstract class LineSegment
     {
-        public abstract void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines);
+        //public abstract void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines);
 
         public abstract void Paint2(Graphics g, Pen pen,  GridCoordinates start, SimpleTransform transform, double? extraLines);
 
@@ -49,7 +49,7 @@ namespace CelticKnotwork1
         public abstract Direction IngoingDirection();
         public abstract Direction OutgoingDirection();
 
-        protected static void DrawQuarterCircle(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double startRadians, double? extraLines)
+        public static void DrawQuarterCircle(Graphics g, Pen pen, SimpleTransform transform, GridCoordinates p0, double startRadians, double? extraLines)
         {
             //double startRadians = 1.75; // Vertical arc, arcing towards the right.
             //double startRadians = 1.25; // Horizontal arc, arcing upward.
@@ -121,6 +121,7 @@ namespace CelticKnotwork1
             return Direction.SouthEast; // Anything that goes out, goes to the SouthEast.
         }
 
+        /*
         public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
             int xCoor = transform.XOffset + transform.XScale * start.Col;
@@ -145,6 +146,7 @@ namespace CelticKnotwork1
 
             }
         }
+        */
 
         public override void Paint2(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
@@ -215,6 +217,7 @@ namespace CelticKnotwork1
             return Direction.SouthWest;
         }
 
+        /*
         public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
             int xCoor = transform.XOffset + transform.XScale * start.Col;
@@ -227,6 +230,7 @@ namespace CelticKnotwork1
                 g.DrawLine(pen, xCoor + 4, yCoor, xCoor - transform.XScale + 4, yCoor + transform.YScale);
             }
         }
+        */
 
         public override void Paint2(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
@@ -295,6 +299,7 @@ namespace CelticKnotwork1
             return Direction.NorthEast;
         }
 
+        /*
         public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
             double xRadius = transform.XScale / (0.5 * Math.Sqrt(2));
@@ -310,6 +315,7 @@ namespace CelticKnotwork1
 
             DrawArcs(g, pen, extraLines, ellipse, 135, 90);
         }
+        */
 
         public override void Paint2(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
@@ -340,6 +346,7 @@ namespace CelticKnotwork1
             return Direction.SouthWest;
         }
 
+        /*
         public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
             double xRadius = transform.XScale / (0.5 * Math.Sqrt(2));
@@ -355,6 +362,7 @@ namespace CelticKnotwork1
 
             DrawArcs(g, pen, extraLines, ellipse, -45, 90);
         }
+        */
 
         public override void Paint2(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
@@ -385,6 +393,7 @@ namespace CelticKnotwork1
             return Direction.SouthEast;
         }
 
+        /*
         public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
             double xRadius = transform.XScale / (0.5 * Math.Sqrt(2));
@@ -400,6 +409,7 @@ namespace CelticKnotwork1
 
             DrawArcs(g, pen, extraLines, ellipse, 225, 90);
         }
+        */
 
         public override void Paint2(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
@@ -428,7 +438,8 @@ namespace CelticKnotwork1
         {
             return Direction.NorthEast;
         }
-
+        
+        /*
         public override void Paint(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {
             double xRadius = transform.XScale / (0.5 * Math.Sqrt(2));
@@ -444,6 +455,7 @@ namespace CelticKnotwork1
 
             DrawArcs(g, pen, extraLines, ellipse, 45, 90);
         }
+        */
 
         public override void Paint2(Graphics g, Pen pen, GridCoordinates start, SimpleTransform transform, double? extraLines)
         {

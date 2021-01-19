@@ -67,7 +67,7 @@ namespace CelticKnotwork1
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             bool drawGrid = false;
-            bool drawKnotwork = false;
+            bool drawKnotwork = true;
             Graphics g = e.Graphics;
             Pen pen = new Pen(Color.IndianRed, 1.0f);
 
@@ -316,25 +316,29 @@ namespace CelticKnotwork1
             // If we are moving downward. "l" can be a vertical arc or a diagonal.
             if (p1.Row > p0.Row)
             {
-                l.Paint2(g, pen, p0, transform, extraLines);
+                //l.Paint2(g, pen, p0, transform, extraLines);
+                PaintVisitor v1 = new PaintVisitor(g, pen, p0, transform, extraLines);
+                l.Accept(v1);
 
                 if (traversalCounter == 1)
                 {
-                    SvgGeneratingVisitor v = new SvgGeneratingVisitor(p0, transform);
-                    l.Accept(v);
-                    sw.WriteLine(v.GetResult());
+                    SvgGeneratingVisitor v2 = new SvgGeneratingVisitor(p0, transform);
+                    l.Accept(v2);
+                    sw.WriteLine(v2.GetResult());
                 }
             }
             // If we are moving upward. "l" can be a vertical arc or a diagonal.
             else if (p1.Row < p0.Row)
             {
-                l.Paint2(g, pen, p1, transform, extraLines);
+                //l.Paint2(g, pen, p1, transform, extraLines);
+                PaintVisitor v1 = new PaintVisitor(g, pen, p1, transform, extraLines);
+                l.Accept(v1);
 
                 if (traversalCounter == 1)
                 {
-                    SvgGeneratingVisitor v = new SvgGeneratingVisitor(p1, transform);
-                    l.Accept(v);
-                    sw.WriteLine(v.GetResult());
+                    SvgGeneratingVisitor v2 = new SvgGeneratingVisitor(p1, transform);
+                    l.Accept(v2);
+                    sw.WriteLine(v2.GetResult());
                 }
             }
             else
@@ -352,13 +356,15 @@ namespace CelticKnotwork1
                         p = new GridCoordinates { Col = p0.Col + 1, Row = p0.Row + 1 };
                     }
 
-                    l.Paint2(g, pen, p, transform, extraLines);
+                    //l.Paint2(g, pen, p, transform, extraLines);
+                    PaintVisitor v1 = new PaintVisitor(g, pen, p, transform, extraLines);
+                    l.Accept(v1);
 
                     if (traversalCounter == 1)
                     {
-                        SvgGeneratingVisitor v = new SvgGeneratingVisitor(p, transform);
-                        l.Accept(v);
-                        sw.WriteLine(v.GetResult());
+                        SvgGeneratingVisitor v2 = new SvgGeneratingVisitor(p, transform);
+                        l.Accept(v2);
+                        sw.WriteLine(v2.GetResult());
                     }
                 }
                 else
@@ -374,13 +380,15 @@ namespace CelticKnotwork1
                         p = new GridCoordinates { Col = p0.Col - 1, Row = p0.Row + 1 };
                     }
 
-                    l.Paint2(g, pen, p, transform, extraLines);
+                    //l.Paint2(g, pen, p, transform, extraLines);
+                    PaintVisitor v1 = new PaintVisitor(g, pen, p, transform, extraLines);
+                    l.Accept(v1);
 
                     if (traversalCounter == 1)
                     {
-                        SvgGeneratingVisitor v = new SvgGeneratingVisitor(p, transform);
-                        l.Accept(v);
-                        sw.WriteLine(v.GetResult());
+                        SvgGeneratingVisitor v2 = new SvgGeneratingVisitor(p, transform);
+                        l.Accept(v2);
+                        sw.WriteLine(v2.GetResult());
                     }
                 }
             }
@@ -392,7 +400,21 @@ namespace CelticKnotwork1
             var connections = knotwork.GetAllLines();
             foreach (var connection in connections)
             {
-                connection.Item2.Paint(g, pen, connection.Item1, transform, extraLines);
+                //connection.Item2.Paint(g, pen, connection.Item1, transform, extraLines);
+
+
+                //connection.Item2.Paint2(g, pen, connection.Item1, transform, extraLines);
+                //TODO?~ Find out why this compensation is necessary.
+                GridCoordinates start = connection.Item1;
+                LineSegment l = connection.Item2;
+                if (l is HorizontalArcingUp)
+                {
+                    start = new GridCoordinates { Col = start.Col + 1, Row = start.Row + 1 };
+                } else if (l is HorizontalArcingDown)
+                {
+                    start = new GridCoordinates { Col = start.Col + 1, Row = start.Row - 1 };
+                }
+                l.Paint2(g, pen, start, transform, extraLines);
             }
 
         }
