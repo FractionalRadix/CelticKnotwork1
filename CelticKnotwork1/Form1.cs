@@ -34,8 +34,8 @@ namespace CelticKnotwork1
             // It's very well possible that a number of compensations in the drawing code here, and in the drawing code for LineSegment classes,
             // cancel each other out.
 
-            knotwork = KnotworkFactory.SampleKnotwork1(9);
-            //knotwork = KnotworkFactory.SampleKnotwork2(47,25,3); // These parameters yield a border that consists of a single line.
+            //knotwork = KnotworkFactory.SampleKnotwork1(9);
+            knotwork = KnotworkFactory.SampleKnotwork2(47,25,3); // These parameters yield a border that consists of a single line.
             transform = new SimpleTransform { XOffset = 50, XScale = 10, YOffset = 30, YScale = 10 };
 
             traversalPoint0 = originalPoint0;
@@ -320,8 +320,9 @@ namespace CelticKnotwork1
 
                 if (traversalCounter == 1)
                 {
-                    String svgLine = l.generateSVG(p0, transform);
-                    sw.WriteLine(svgLine);
+                    SvgGeneratingVisitor v = new SvgGeneratingVisitor(p0, transform);
+                    l.Accept(v);
+                    sw.WriteLine(v.GetResult());
                 }
             }
             // If we are moving upward. "l" can be a vertical arc or a diagonal.
@@ -331,7 +332,9 @@ namespace CelticKnotwork1
 
                 if (traversalCounter == 1)
                 {
-                    sw.WriteLine(l.generateSVG(p1, transform));
+                    SvgGeneratingVisitor v = new SvgGeneratingVisitor(p1, transform);
+                    l.Accept(v);
+                    sw.WriteLine(v.GetResult());
                 }
             }
             else
@@ -353,7 +356,9 @@ namespace CelticKnotwork1
 
                     if (traversalCounter == 1)
                     {
-                        sw.WriteLine(l.generateSVG(p, transform));
+                        SvgGeneratingVisitor v = new SvgGeneratingVisitor(p, transform);
+                        l.Accept(v);
+                        sw.WriteLine(v.GetResult());
                     }
                 }
                 else
@@ -373,7 +378,9 @@ namespace CelticKnotwork1
 
                     if (traversalCounter == 1)
                     {
-                        sw.WriteLine(l.generateSVG(p, transform));
+                        SvgGeneratingVisitor v = new SvgGeneratingVisitor(p, transform);
+                        l.Accept(v);
+                        sw.WriteLine(v.GetResult());
                     }
                 }
             }
