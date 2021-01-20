@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
@@ -28,6 +29,10 @@ namespace CelticKnotwork1
         {
             InitializeComponent();
             Graphics g = this.CreateGraphics();
+
+            //TODO!~ Modify the culture to ONLY change the floating point separator. Also, see if this can be done in the project file instead of code.
+            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+            
 
             //knotwork = KnotworkFactory.SampleKnotwork1(9);
             knotwork = KnotworkFactory.SampleKnotwork2(47,25,3); // These parameters yield a border that consists of a single line.
@@ -387,7 +392,7 @@ namespace CelticKnotwork1
             // If we are moving downward. "l" can be a vertical arc or a diagonal.
             if (p1.Row > p0.Row)
             {
-                SvgGeneratingVisitor v = new SvgGeneratingVisitor(p0, transform);
+                SvgGeneratingVisitor v = new SvgGeneratingVisitor(p0, transform, extraLines);
                 l.Accept(v);
                 sw.WriteLine(v.GetResult());
             }
@@ -395,7 +400,7 @@ namespace CelticKnotwork1
             else if (p1.Row < p0.Row)
             {
 
-                SvgGeneratingVisitor v = new SvgGeneratingVisitor(p1, transform);
+                SvgGeneratingVisitor v = new SvgGeneratingVisitor(p1, transform, extraLines);
                 l.Accept(v);
                 sw.WriteLine(v.GetResult());
             }
@@ -414,7 +419,7 @@ namespace CelticKnotwork1
                         p = new GridCoordinates { Col = p0.Col + 1, Row = p0.Row + 1 };
                     }
 
-                    SvgGeneratingVisitor v = new SvgGeneratingVisitor(p, transform);
+                    SvgGeneratingVisitor v = new SvgGeneratingVisitor(p, transform, extraLines);
                     l.Accept(v);
                     sw.WriteLine(v.GetResult());
                 }
@@ -431,7 +436,7 @@ namespace CelticKnotwork1
                         p = new GridCoordinates { Col = p0.Col - 1, Row = p0.Row + 1 };
                     }
 
-                    SvgGeneratingVisitor v = new SvgGeneratingVisitor(p, transform);
+                    SvgGeneratingVisitor v = new SvgGeneratingVisitor(p, transform, extraLines);
                     l.Accept(v);
                     sw.WriteLine(v.GetResult());
                 }
