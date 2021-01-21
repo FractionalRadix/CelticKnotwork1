@@ -25,7 +25,7 @@ namespace CelticKnotwork1
         {
             Point p1 = transform.Apply(start.Col, start.Row);
             Point p2 = transform.Apply(l.Target(start).Col, l.Target(start).Row);
-            result = $"<line x1=\"{p1.X}\" y1=\"{p1.Y}\" x2=\"{p2.X}\" y2=\"{p2.Y}\" stroke=\"black\"/>";
+            result = $"<line x1=\"{p1.X}\" y1=\"{p1.Y}\" x2=\"{p2.X}\" y2=\"{p2.Y}\"/>";
 
             //TODO!+ Add optional doubling of lines.
         }
@@ -35,7 +35,7 @@ namespace CelticKnotwork1
             GridCoordinates target = l.Target(start);
             Point p1 = transform.Apply(start.Col, start.Row);
             Point p2 = transform.Apply(target.Col, target.Row);
-            result = $"<line x1=\"{p1.X}\" y1=\"{p1.Y}\" x2=\"{p2.X}\" y2=\"{p2.Y}\" stroke=\"black\"/>";
+            result = $"<line x1=\"{p1.X}\" y1=\"{p1.Y}\" x2=\"{p2.X}\" y2=\"{p2.Y}\"/>";
 
             //TODO!+ Add optional doubling of lines.
         }
@@ -47,11 +47,10 @@ namespace CelticKnotwork1
             Point p2 = transform.Apply(target.Col, target.Row);
             int len = Math.Abs(p2.Y - p1.Y);
             Point control = new Point((int)(p1.X - 0.5 * len), (int)(p1.Y + 0.5 * len));
-            result = $"<path d=\"M {p1.X} {p1.Y} Q {control.X} {control.Y} {p2.X} {p2.Y}\" stroke=\"black\" fill=\"none\"/>";
+            result = $"<path d=\"M {p1.X} {p1.Y} Q {control.X} {control.Y} {p2.X} {p2.Y}\"/>";
 
             if (extraLines != null)
             {
-                //TODO!~ Check which point is on top, p1 or p2. That determines if we should add or subtract for the Y value.
                 GridCoordinates upper, lower;
                 if (start.Row > target.Row)
                 {
@@ -67,14 +66,14 @@ namespace CelticKnotwork1
                 PointF p1outer = transform.Apply(upper.Col - (float)extraLines.Value, upper.Row - (float)extraLines.Value);
                 PointF p2outer = transform.Apply(lower.Col - (float)extraLines.Value, lower.Row + (float)extraLines.Value);
                 PointF controlOuter = new PointF(control.X - transform.XScale * (float) extraLines.Value, control.Y);
-                String res2 = $"<path d=\"M {p1outer.X} {p1outer.Y} Q {controlOuter.X} {controlOuter.Y} {p2outer.X} {p2outer.Y}\" stroke=\"black\" fill=\"none\"/>";
+                String res2 = $"<path d=\"M {p1outer.X} {p1outer.Y} Q {controlOuter.X} {controlOuter.Y} {p2outer.X} {p2outer.Y}\"/>";
 
                 result += res2;
 
                 PointF p1inner = transform.Apply(upper.Col + (float)extraLines.Value, upper.Row + (float)extraLines.Value);
                 PointF p2inner = transform.Apply(lower.Col + (float)extraLines.Value, lower.Row - (float)extraLines.Value);
                 PointF controlInner = new PointF(control.X + transform.XScale * (float)extraLines.Value, control.Y);
-                String res3 = $"<path d=\"M {p1inner.X} {p1inner.Y} Q {controlInner.X} {controlInner.Y} {p2inner.X} {p2inner.Y}\" stroke=\"black\" fill=\"none\"/>";
+                String res3 = $"<path d=\"M {p1inner.X} {p1inner.Y} Q {controlInner.X} {controlInner.Y} {p2inner.X} {p2inner.Y}\"/>";
 
                 result += res3;
             }
@@ -87,9 +86,37 @@ namespace CelticKnotwork1
             Point p2 = transform.Apply(target.Col, target.Row);
             int len = Math.Abs(p2.Y - p1.Y);
             Point control = new Point((int)(p1.X + 0.5 * len), (int)(p1.Y + 0.5 * len));
-            result = $"<path d=\"M {p1.X} {p1.Y} Q {control.X} {control.Y} {p2.X} {p2.Y}\" stroke=\"black\" fill=\"none\"/>";
+            result = $"<path d=\"M {p1.X} {p1.Y} Q {control.X} {control.Y} {p2.X} {p2.Y}\"/>";
 
-            //TODO!+ Add optional doubling of lines.
+            if (extraLines != null)
+            {
+                GridCoordinates upper, lower;
+                if (start.Row > target.Row)
+                {
+                    upper = target;
+                    lower = start;
+                }
+                else
+                {
+                    upper = start;
+                    lower = target;
+                }
+
+                
+                PointF p1outer = transform.Apply(upper.Col + (float)extraLines.Value, upper.Row - (float)extraLines.Value);
+                PointF p2outer = transform.Apply(lower.Col + (float)extraLines.Value, lower.Row + (float)extraLines.Value);
+                PointF controlOuter = new PointF(control.X + transform.XScale * (float)extraLines.Value, control.Y);
+                String res2 = $"<path d=\"M {p1outer.X} {p1outer.Y} Q {controlOuter.X} {controlOuter.Y} {p2outer.X} {p2outer.Y}\"/>";
+
+                result += res2;
+
+                PointF p1inner = transform.Apply(upper.Col - (float)extraLines.Value, upper.Row + (float)extraLines.Value);
+                PointF p2inner = transform.Apply(lower.Col - (float)extraLines.Value, lower.Row - (float)extraLines.Value);
+                PointF controlInner = new PointF(control.X - transform.XScale * (float)extraLines.Value, control.Y);
+                String res3 = $"<path d=\"M {p1inner.X} {p1inner.Y} Q {controlInner.X} {controlInner.Y} {p2inner.X} {p2inner.Y}\"/>";
+
+                result += res3;
+            }
         }
 
         public override void VisitHorizontalArcingUp(HorizontalArcingUp l)
@@ -99,9 +126,35 @@ namespace CelticKnotwork1
             Point p2 = transform.Apply(target.Col - 1, target.Row - 1);
             int len = Math.Abs(p2.X - p1.X);
             Point control = new Point((int)(p1.X + 0.5 * len), (int)(p1.Y - 0.5 * len));
-            result = $"<path d=\"M {p1.X} {p1.Y} Q {control.X} {control.Y} {p2.X} {p2.Y}\" stroke=\"black\" fill=\"none\"/>";
+            result = $"<path d=\"M {p1.X} {p1.Y} Q {control.X} {control.Y} {p2.X} {p2.Y}\"/>";
 
-            //TODO!+ Add optional doubling of lines.
+            if (extraLines != null)
+            {
+                GridCoordinates leftmost, rightmost;
+                if (start.Col > target.Col)
+                {
+                    leftmost = target;
+                    rightmost = start;
+                }
+                else
+                {
+                    leftmost = start;
+                    rightmost = target;
+                }
+
+                //TODO!+ Generate SVG for the extra arc above
+                PointF upperLeft = transform.Apply(leftmost.Col - extraLines.Value, leftmost.Row - extraLines.Value);
+                PointF upperRight = transform.Apply(rightmost.Col + extraLines.Value, rightmost.Row - extraLines.Value);
+                PointF controlUpper = new PointF(control.X, control.Y - transform.YScale * (float) extraLines.Value);
+                String resUpper = $"<path d=\"M {upperLeft.X} {upperLeft.Y} Q {controlUpper.X} {controlUpper.Y} {upperRight.X} {upperRight.Y}\"/>";
+                result += resUpper;
+
+                //TODO!+ Generate SVG for the extra arc below
+                PointF lowerLeft = transform.Apply(leftmost.Col + extraLines.Value, leftmost.Row + extraLines.Value);
+                PointF lowerRight = transform.Apply(rightmost.Col - extraLines.Value, rightmost.Row + extraLines.Value);
+                PointF controlLower = new PointF(control.X, control.Y + transform.YScale * (float)extraLines.Value);
+
+            }
         }
 
         public override void VisitHorizontalArcingDown(HorizontalArcingDown l)
@@ -111,9 +164,25 @@ namespace CelticKnotwork1
             Point p2 = transform.Apply(target.Col - 1, target.Row + 1);
             int len = Math.Abs(p2.X - p1.X);
             Point control = new Point((int)(p1.X + 0.5 * len), (int)(p1.Y + 0.5 * len));
-            result = $"<path d=\"M {p1.X} {p1.Y} Q {control.X} {control.Y} {p2.X} {p2.Y}\" stroke=\"black\" fill=\"none\"/>";
+            result = $"<path d=\"M {p1.X} {p1.Y} Q {control.X} {control.Y} {p2.X} {p2.Y}\"/>";
 
-            //TODO!+ Add optional doubling of lines.
+            if (extraLines != null)
+            {
+                GridCoordinates leftmost, rightmost;
+                if (start.Col > target.Col)
+                {
+                    leftmost = target;
+                    rightmost = start;
+                }
+                else
+                {
+                    leftmost = start;
+                    rightmost = target;
+                }
+
+                //TODO!+ Generate SVG for the extra arc below
+                //TODO!+ Generate SVG for the extra arc above
+            }
         }
 
     }

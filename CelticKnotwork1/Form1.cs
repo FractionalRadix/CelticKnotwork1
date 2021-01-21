@@ -85,7 +85,7 @@ namespace CelticKnotwork1
 
             //TODO!+ I could still add "<g stroke=\"black\" fill=\"none\">" .  
             // Then I would not have to add this to every single one of the quadratic Bézier curves... saving some space and string operations.
-
+            sw.WriteLine("      <g stroke=\"black\" fill=\"none\">");
 
             bool ready;
             traversalPoint0 = originalPoint0;
@@ -102,6 +102,7 @@ namespace CelticKnotwork1
                 ready = traversalPoint0.Equals(originalPoint0) && traversalPoint1.Equals(traversalPoint1);
             } while (!ready);
 
+            sw.WriteLine("      </g>");
             sw.WriteLine("    </svg>");
             sw.WriteLine("  </body>");
             sw.WriteLine("</html>");
