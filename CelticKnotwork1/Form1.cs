@@ -83,8 +83,6 @@ namespace CelticKnotwork1
                                                                      // I am deliberately NOT using SVG's "transform" option to apply the scaling and the translation.
                                                                      // While it might work for the translation, when scaling lines it scales both the size and the WIDTH of the lines - resulting in very broad lines.
 
-            //TODO!+ I could still add "<g stroke=\"black\" fill=\"none\">" .  
-            // Then I would not have to add this to every single one of the quadratic Bézier curves... saving some space and string operations.
             sw.WriteLine("      <g stroke=\"black\" fill=\"none\">");
 
             bool ready;

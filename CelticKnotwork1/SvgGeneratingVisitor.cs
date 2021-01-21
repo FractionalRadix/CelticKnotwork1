@@ -142,18 +142,19 @@ namespace CelticKnotwork1
                     rightmost = target;
                 }
 
-                //TODO!+ Generate SVG for the extra arc above
-                PointF upperLeft = transform.Apply(leftmost.Col - extraLines.Value, leftmost.Row - extraLines.Value);
-                PointF upperRight = transform.Apply(rightmost.Col + extraLines.Value, rightmost.Row - extraLines.Value);
+                // Generate SVG for the extra arc above
+                PointF upperLeft = transform.Apply(leftmost.Col - 1 - extraLines.Value, leftmost.Row - 1 - extraLines.Value);
+                PointF upperRight = transform.Apply(rightmost.Col - 1 + extraLines.Value, rightmost.Row - 1 - extraLines.Value);
                 PointF controlUpper = new PointF(control.X, control.Y - transform.YScale * (float) extraLines.Value);
                 String resUpper = $"<path d=\"M {upperLeft.X} {upperLeft.Y} Q {controlUpper.X} {controlUpper.Y} {upperRight.X} {upperRight.Y}\"/>";
                 result += resUpper;
 
-                //TODO!+ Generate SVG for the extra arc below
-                PointF lowerLeft = transform.Apply(leftmost.Col + extraLines.Value, leftmost.Row + extraLines.Value);
-                PointF lowerRight = transform.Apply(rightmost.Col - extraLines.Value, rightmost.Row + extraLines.Value);
+                // Generate SVG for the extra arc below
+                PointF lowerLeft = transform.Apply(leftmost.Col - 1 + extraLines.Value, leftmost.Row - 1 + extraLines.Value);
+                PointF lowerRight = transform.Apply(rightmost.Col - 1 - extraLines.Value, rightmost.Row - 1 + extraLines.Value);
                 PointF controlLower = new PointF(control.X, control.Y + transform.YScale * (float)extraLines.Value);
-
+                String resLower = $"<path d=\"M {lowerLeft.X} {lowerLeft.Y} Q {controlLower.X} {controlLower.Y} {lowerRight.X} {lowerRight.Y}\"/>";
+                result += resLower;
             }
         }
 
@@ -180,8 +181,19 @@ namespace CelticKnotwork1
                     rightmost = target;
                 }
 
-                //TODO!+ Generate SVG for the extra arc below
-                //TODO!+ Generate SVG for the extra arc above
+                // Generate SVG for the extra arc below
+                PointF lowerLeft = transform.Apply(leftmost.Col - 1 - extraLines.Value, leftmost.Row + 1 + extraLines.Value);
+                PointF lowerRight = transform.Apply(rightmost.Col - 1 + extraLines.Value, rightmost.Row + 1 + extraLines.Value);
+                PointF controlLower = new PointF(control.X, control.Y + transform.YScale * (float) extraLines.Value);
+                String resLower = $"<path d=\"M {lowerLeft.X} {lowerLeft.Y} Q {controlLower.X} {controlLower.Y} {lowerRight.X} {lowerRight.Y}\"/>";
+                result += resLower;
+
+                // Generate SVG for the extra arc above
+                PointF upperLeft = transform.Apply(leftmost.Col - 1 + extraLines.Value, leftmost.Row + 1 - extraLines.Value);
+                PointF upperRight = transform.Apply(rightmost.Col - 1 - extraLines.Value, rightmost.Row + 1 - extraLines.Value);
+                PointF controlUpper = new PointF(control.X, control.Y - transform.YOffset * (float)extraLines.Value);
+                String resUpper = $"<path d=\"M {upperLeft.X} {upperLeft.Y} Q {controlUpper.X} {controlUpper.Y} {upperRight.X} {upperRight.Y}\"/>";
+                result += resUpper;
             }
         }
 
