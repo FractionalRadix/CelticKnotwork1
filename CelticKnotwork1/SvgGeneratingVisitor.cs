@@ -52,12 +52,31 @@ namespace CelticKnotwork1
             if (extraLines != null)
             {
                 //TODO!~ Check which point is on top, p1 or p2. That determines if we should add or subtract for the Y value.
-                PointF p1outer = transform.Apply(start.Col - (float)extraLines.Value, start.Row - (float)extraLines.Value);
-                PointF p2outer = transform.Apply(target.Col - (float)extraLines.Value, target.Row - (float)extraLines.Value);
-                PointF controlOuter = new PointF(control.X, control.Y - transform.YScale * (float) extraLines.Value);
+                GridCoordinates upper, lower;
+                if (start.Row > target.Row)
+                {
+                    upper = target; 
+                    lower = start;
+                }
+                else
+                { 
+                    upper = start; 
+                    lower = target; 
+                }
+
+                PointF p1outer = transform.Apply(upper.Col - (float)extraLines.Value, upper.Row - (float)extraLines.Value);
+                PointF p2outer = transform.Apply(lower.Col - (float)extraLines.Value, lower.Row + (float)extraLines.Value);
+                PointF controlOuter = new PointF(control.X - transform.XScale * (float) extraLines.Value, control.Y);
                 String res2 = $"<path d=\"M {p1outer.X} {p1outer.Y} Q {controlOuter.X} {controlOuter.Y} {p2outer.X} {p2outer.Y}\" stroke=\"black\" fill=\"none\"/>";
 
                 result += res2;
+
+                PointF p1inner = transform.Apply(upper.Col + (float)extraLines.Value, upper.Row + (float)extraLines.Value);
+                PointF p2inner = transform.Apply(lower.Col + (float)extraLines.Value, lower.Row - (float)extraLines.Value);
+                PointF controlInner = new PointF(control.X + transform.XScale * (float)extraLines.Value, control.Y);
+                String res3 = $"<path d=\"M {p1inner.X} {p1inner.Y} Q {controlInner.X} {controlInner.Y} {p2inner.X} {p2inner.Y}\" stroke=\"black\" fill=\"none\"/>";
+
+                result += res3;
             }
         }
 
