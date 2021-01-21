@@ -23,11 +23,24 @@ namespace CelticKnotwork1
 
         public override void VisitDiagonalForwardDown(DiagonalForwardDown l)
         {
+            GridCoordinates target = l.Target(start);
             Point p1 = transform.Apply(start.Col, start.Row);
-            Point p2 = transform.Apply(l.Target(start).Col, l.Target(start).Row);
+            Point p2 = transform.Apply(target.Col, target.Row);
             result = $"<line x1=\"{p1.X}\" y1=\"{p1.Y}\" x2=\"{p2.X}\" y2=\"{p2.Y}\"/>";
 
-            //TODO!+ Add optional doubling of lines.
+            // Optional doubling of lines.
+            if (extraLines != null)
+            {
+                PointF upperLeft = transform.Apply(start.Col - (float)extraLines.Value, start.Row);
+                PointF lowerLeft = transform.Apply(target.Col - (float)extraLines.Value, target.Row);
+                String leftLine = $"<line x1=\"{upperLeft.X}\" y1=\"{upperLeft.Y}\" x2=\"{lowerLeft.X}\" y2=\"{lowerLeft.Y}\"/>";
+                result += leftLine;
+
+                PointF upperRight = transform.Apply(start.Col + (float)extraLines.Value, start.Row);
+                PointF lowerRight = transform.Apply(target.Col + (float)extraLines.Value, target.Row);
+                String rightLine = $"<line x1=\"{upperRight.X}\" y1=\"{upperRight.Y}\" x2=\"{lowerRight.X}\" y2=\"{lowerRight.Y}\"/>";
+                result += rightLine;
+            }
         }
 
         public override void VisitDiagonalBackwardDown(DiagonalBackwardDown l)
@@ -37,7 +50,19 @@ namespace CelticKnotwork1
             Point p2 = transform.Apply(target.Col, target.Row);
             result = $"<line x1=\"{p1.X}\" y1=\"{p1.Y}\" x2=\"{p2.X}\" y2=\"{p2.Y}\"/>";
 
-            //TODO!+ Add optional doubling of lines.
+            // Optional doubling of lines.
+            if (extraLines != null)
+            {
+                PointF upperLeft = transform.Apply(start.Col - (float)extraLines.Value, start.Row);
+                PointF lowerLeft = transform.Apply(target.Col - (float)extraLines.Value, target.Row);
+                String leftLine = $"<line x1=\"{upperLeft.X}\" y1=\"{upperLeft.Y}\" x2=\"{lowerLeft.X}\" y2=\"{lowerLeft.Y}\"/>";
+                result += leftLine;
+
+                PointF upperRight = transform.Apply(start.Col + (float)extraLines.Value, start.Row);
+                PointF lowerRight = transform.Apply(target.Col + (float)extraLines.Value, target.Row);
+                String rightLine = $"<line x1=\"{upperRight.X}\" y1=\"{upperRight.Y}\" x2=\"{lowerRight.X}\" y2=\"{lowerRight.Y}\"/>";
+                result += rightLine;
+            }
         }
 
         public override void VisitVerticalArcingLeft(VerticalArcingLeft l)
