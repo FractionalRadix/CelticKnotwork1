@@ -32,10 +32,11 @@ namespace CelticKnotwork1
 
             //TODO!~ Modify the culture to ONLY change the floating point separator. Also, see if this can be done in the project file instead of code.
             CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
-            
 
-            knotwork = KnotworkFactory.SampleKnotwork3(9);
+            //knotwork = KnotworkFactory.SampleKnotwork3(8);
             //knotwork = KnotworkFactory.SampleKnotwork2(47,25,3); // These parameters yield a border that consists of a single line.
+            //knotwork = KnotworkFactory.SampleKnotwork2(25, 47, 3); // These parameters also yield a single line.
+            knotwork = KnotworkFactory.SampleKnotwork2(15, 47, 3);// These parameters also yield a single line.
             transform = new SimpleTransform { XOffset = 50, XScale = 10, YOffset = 30, YScale = 10 };
 
             traversalPoint0 = originalPoint0;
@@ -136,7 +137,7 @@ namespace CelticKnotwork1
             }
         }
 
-        List<GridCoordinates> removeDoubles(List<GridCoordinates> orig)
+        List<GridCoordinates> RemoveDoubles(List<GridCoordinates> orig)
         {
             List<GridCoordinates> res = new List<GridCoordinates>();
             foreach (GridCoordinates p in orig)
@@ -157,7 +158,7 @@ namespace CelticKnotwork1
             connectedPoints = connectedPoints.FindAll(x => !x.Equals(traversalPoint0));
 
             // Remove doubles.
-            connectedPoints = removeDoubles(connectedPoints);
+            connectedPoints = RemoveDoubles(connectedPoints);
 
             // If there's only one point left, then that is where we must go.
             if (connectedPoints.Count == 1)
@@ -188,7 +189,7 @@ namespace CelticKnotwork1
                         return null;
                     }
 
-                    if (sameAxis(currentDirection.Value, connectedDirection.Value))
+                    if (DirectionUtils.SameAxis(currentDirection.Value, connectedDirection.Value))
                     {
                         // Success!
                         return connectedPoint;
@@ -197,38 +198,6 @@ namespace CelticKnotwork1
             }
 
             return null;
-        }
-
-        bool sameAxis(Direction dir1, Direction dir2)
-        {
-            if (dir1.Equals(dir2))
-            {
-                return true;
-            }
-
-            switch (dir1)
-            {
-                case Direction.North:
-                    return dir2.Equals(Direction.South);
-                case Direction.NorthEast:
-                    return dir2.Equals(Direction.SouthWest);
-                case Direction.East:
-                    return dir2.Equals(Direction.West);
-                case Direction.SouthEast:
-                    return dir2.Equals(Direction.NorthWest);
-                case Direction.South:
-                    return dir2.Equals(Direction.North);
-                case Direction.SouthWest:
-                    return dir2.Equals(Direction.NorthEast);
-                case Direction.West:
-                    return dir2.Equals(Direction.East);
-                case Direction.NorthWest:
-                    return dir2.Equals(Direction.SouthEast);
-            }
-
-            // Should never reach here...
-            //TODO?+ Issue an error
-            return false;
         }
 
         //TODO!~ Find a way to do this using polymorphism.

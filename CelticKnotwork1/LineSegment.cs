@@ -5,8 +5,6 @@ using System.Text;
 
 namespace CelticKnotwork1
 {
-    enum Direction { North, NorthEast, East, SouthEast, South, SouthWest, West, NorthWest };
-
     /// <summary>
     /// A connection between two points on the grid.
     /// Despite the name, this is not always a line segment; it can also be an arc.
