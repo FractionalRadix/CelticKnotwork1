@@ -34,8 +34,8 @@ namespace CelticKnotwork1
             CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
             
 
-            //knotwork = KnotworkFactory.SampleKnotwork1(9);
-            knotwork = KnotworkFactory.SampleKnotwork2(47,25,3); // These parameters yield a border that consists of a single line.
+            knotwork = KnotworkFactory.SampleKnotwork3(9);
+            //knotwork = KnotworkFactory.SampleKnotwork2(47,25,3); // These parameters yield a border that consists of a single line.
             transform = new SimpleTransform { XOffset = 50, XScale = 10, YOffset = 30, YScale = 10 };
 
             traversalPoint0 = originalPoint0;
@@ -51,7 +51,7 @@ namespace CelticKnotwork1
 
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
-            bool drawGrid = false;
+            bool drawGrid = true;
             bool drawKnotwork = true;
             Graphics g = e.Graphics;
             Pen pen = new Pen(Color.IndianRed, 1.0f);

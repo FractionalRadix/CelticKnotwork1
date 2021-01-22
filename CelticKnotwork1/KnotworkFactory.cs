@@ -6,6 +6,78 @@ namespace CelticKnotwork1
 {
     static class KnotworkFactory
     {
+        public static Knotwork Translate(Knotwork orig, int delta_rows, int delta_cols)
+        {
+            Knotwork res = new Knotwork(orig.Rows + delta_rows, orig.Cols + delta_cols); //TODO?~ What if rows/cols is negative?
+            var elements = orig.GetAllLines();
+            foreach (var elt in elements)
+            {
+                GridCoordinates coor = elt.Item1;
+                LineSegment l = elt.Item2;
+                res.AddLine(coor.Row + delta_rows, coor.Col + delta_cols, l); //TODO?~ Use a COPY of l? ...why not make this a method of Knotwork and do this in-place....
+            }
+            return res;
+        }
+
+        public static Knotwork SampleKnotwork3(int n)
+        {
+            // For robustness: n should be at least 1.
+            if (n < 1)
+            {
+                n = 1;
+            }
+
+            Knotwork knotwork = new Knotwork(5, 5 + n * 6);
+
+            // Upper and lower rows.
+            for (int i = 1; i < 6 * n + 2; i += 2)
+            {
+                // Draw the top row.
+                knotwork.AddLine(0, i, new HorizontalArcingUp());
+                knotwork.AddLine(0, i, new DiagonalForwardDown());
+                knotwork.AddLine(0, i + 2, new DiagonalBackwardDown());
+
+                // Draw the bottom row.
+                knotwork.AddLine(4, i, new HorizontalArcingDown());
+                knotwork.AddLine(3, i + 1, new DiagonalBackwardDown());
+                knotwork.AddLine(3, i + 1, new DiagonalForwardDown());
+            }
+
+            for (int i = 0; i < 6 * n + 3; i+= 2)
+            { 
+
+                // Draw the inner part of the bookmark.
+                if ((i-4)%6==0)
+                {
+                    knotwork.AddLine(1, i, new HorizontalArcingDown());
+                    knotwork.AddLine(3, i, new HorizontalArcingUp());
+                }
+                else
+                {
+                    knotwork.AddLine(1, i, new DiagonalForwardDown());
+                    knotwork.AddLine(2, i + 1, new DiagonalBackwardDown());
+                }
+
+                if (i%6 != 0)
+                {
+                    knotwork.AddLine(1, i, new DiagonalBackwardDown());
+                    knotwork.AddLine(2, i-1, new DiagonalForwardDown());
+                }
+                    
+            }
+
+            // Stright-lined part of the knot at the righthand side of the screen.
+            knotwork.AddLine(1, 6 * n + 4, new DiagonalBackwardDown());
+            knotwork.AddLine(2, 6 * n + 3, new DiagonalForwardDown());
+
+            // Add the arcs at the beginning and the end.
+            knotwork.AddLine(1, 0, new VerticalArcingLeft());
+            knotwork.AddLine(1, 6 * n + 4, new VerticalArcingRight());
+
+
+            return knotwork;
+        }
+
         public static Knotwork SampleKnotwork1(int n)
         {
             // For robustness: n should be at least 1.
