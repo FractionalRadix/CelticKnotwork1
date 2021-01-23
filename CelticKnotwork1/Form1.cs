@@ -10,7 +10,7 @@ namespace CelticKnotwork1
 {
     public partial class Form1 : Form
     {
-        private readonly Knotwork knotwork;
+        private Knotwork knotwork;
         private readonly SimpleTransform transform;
 
         private readonly GridCoordinates originalPoint0 = new GridCoordinates { Row = 0, Col = 1 };
@@ -37,7 +37,7 @@ namespace CelticKnotwork1
             //knotwork = KnotworkFactory.SampleKnotwork2(47,25,3); // These parameters yield a border that consists of a single line.
             //knotwork = KnotworkFactory.SampleKnotwork2(25, 47, 3); // These parameters also yield a single line.
             knotwork = KnotworkFactory.SampleKnotwork2(15, 47, 3);// These parameters also yield a single line.
-            transform = new SimpleTransform { XOffset = 50, XScale = 10, YOffset = 30, YScale = 10 };
+            transform = new SimpleTransform { XOffset = 250, XScale = 10, YOffset = 30, YScale = 10 };
 
             traversalPoint0 = originalPoint0;
             traversalPoint1 = originalPoint1;
@@ -447,6 +447,30 @@ namespace CelticKnotwork1
                     g.DrawRectangle(pen, new Rectangle(new Point(xCoor, yCoor), new Size(1, 1)));
                 }
             }
+        }
+
+        private void btnStartDrawing_Click(object sender, EventArgs e)
+        {
+            int nrOfRows = Int32.Parse(mtbNrOfRows.Text);
+            int nrOfCols = Int32.Parse(mtbNrOfColumns.Text);
+            int borderWidth = Int32.Parse(mtbBorderWidth.Text);
+            double? doubleLines;
+            if (chbDoubleLines.Checked)
+            {
+                doubleLines = 0.3;
+            }
+            else
+            {
+                doubleLines = null;
+            }
+
+            //TODO!+ Take in account the "double lines" checkbox.
+
+            knotwork = KnotworkFactory.SampleKnotwork2(nrOfRows, nrOfCols, borderWidth);
+
+            //TODO?~ Is this the appropriate way to force a repaint?
+            this.Invalidate();
+
         }
     }
 }

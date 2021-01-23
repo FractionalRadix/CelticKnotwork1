@@ -33,6 +33,12 @@ namespace CelticKnotwork1
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.lblNrOfRows = new System.Windows.Forms.Label();
             this.mtbNrOfRows = new System.Windows.Forms.MaskedTextBox();
+            this.mtbNrOfColumns = new System.Windows.Forms.MaskedTextBox();
+            this.mtbBorderWidth = new System.Windows.Forms.MaskedTextBox();
+            this.lblNrOfColumns = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.chbDoubleLines = new System.Windows.Forms.CheckBox();
+            this.btnStartDrawing = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lblNrOfRows
@@ -46,18 +52,83 @@ namespace CelticKnotwork1
             // 
             // mtbNrOfRows
             // 
-            this.mtbNrOfRows.Location = new System.Drawing.Point(94, 29);
+            this.mtbNrOfRows.Location = new System.Drawing.Point(114, 26);
             this.mtbNrOfRows.Mask = "00000";
             this.mtbNrOfRows.Name = "mtbNrOfRows";
             this.mtbNrOfRows.Size = new System.Drawing.Size(100, 23);
             this.mtbNrOfRows.TabIndex = 1;
+            this.mtbNrOfRows.Text = "25";
             this.mtbNrOfRows.ValidatingType = typeof(int);
+            // 
+            // mtbNrOfColumns
+            // 
+            this.mtbNrOfColumns.Location = new System.Drawing.Point(114, 63);
+            this.mtbNrOfColumns.Mask = "00000";
+            this.mtbNrOfColumns.Name = "mtbNrOfColumns";
+            this.mtbNrOfColumns.Size = new System.Drawing.Size(100, 23);
+            this.mtbNrOfColumns.TabIndex = 2;
+            this.mtbNrOfColumns.Text = "47";
+            this.mtbNrOfColumns.ValidatingType = typeof(int);
+            // 
+            // mtbBorderWidth
+            // 
+            this.mtbBorderWidth.Location = new System.Drawing.Point(114, 99);
+            this.mtbBorderWidth.Mask = "00000";
+            this.mtbBorderWidth.Name = "mtbBorderWidth";
+            this.mtbBorderWidth.Size = new System.Drawing.Size(100, 23);
+            this.mtbBorderWidth.TabIndex = 3;
+            this.mtbBorderWidth.Text = "3";
+            this.mtbBorderWidth.ValidatingType = typeof(int);
+            // 
+            // lblNrOfColumns
+            // 
+            this.lblNrOfColumns.AutoSize = true;
+            this.lblNrOfColumns.Location = new System.Drawing.Point(22, 66);
+            this.lblNrOfColumns.Name = "lblNrOfColumns";
+            this.lblNrOfColumns.Size = new System.Drawing.Size(86, 15);
+            this.lblNrOfColumns.TabIndex = 4;
+            this.lblNrOfColumns.Text = "Nr of columns:";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(22, 99);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(78, 15);
+            this.label2.TabIndex = 5;
+            this.label2.Text = "Border width:";
+            // 
+            // chbDoubleLines
+            // 
+            this.chbDoubleLines.AutoSize = true;
+            this.chbDoubleLines.Location = new System.Drawing.Point(78, 140);
+            this.chbDoubleLines.Name = "chbDoubleLines";
+            this.chbDoubleLines.Size = new System.Drawing.Size(91, 19);
+            this.chbDoubleLines.TabIndex = 6;
+            this.chbDoubleLines.Text = "Double lines";
+            this.chbDoubleLines.UseVisualStyleBackColor = true;
+            // 
+            // btnStartDrawing
+            // 
+            this.btnStartDrawing.Location = new System.Drawing.Point(78, 178);
+            this.btnStartDrawing.Name = "btnStartDrawing";
+            this.btnStartDrawing.Size = new System.Drawing.Size(75, 23);
+            this.btnStartDrawing.TabIndex = 7;
+            this.btnStartDrawing.Text = "Start";
+            this.btnStartDrawing.UseVisualStyleBackColor = true;
+            this.btnStartDrawing.Click += new System.EventHandler(this.btnStartDrawing_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1240, 627);
+            this.ClientSize = new System.Drawing.Size(1024, 627);
+            this.Controls.Add(this.btnStartDrawing);
+            this.Controls.Add(this.chbDoubleLines);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.lblNrOfColumns);
+            this.Controls.Add(this.mtbBorderWidth);
+            this.Controls.Add(this.mtbNrOfColumns);
             this.Controls.Add(this.mtbNrOfRows);
             this.Controls.Add(this.lblNrOfRows);
             this.Name = "Form1";
@@ -72,6 +143,12 @@ namespace CelticKnotwork1
         private System.Windows.Forms.Timer timer1;
         private System.Windows.Forms.Label lblNrOfRows;
         private System.Windows.Forms.MaskedTextBox mtbNrOfRows;
+        private System.Windows.Forms.MaskedTextBox mtbNrOfColumns;
+        private System.Windows.Forms.MaskedTextBox mtbBorderWidth;
+        private System.Windows.Forms.Label lblNrOfColumns;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.CheckBox chbDoubleLines;
+        private System.Windows.Forms.Button btnStartDrawing;
     }
 }
 
