@@ -72,8 +72,8 @@ namespace CelticKnotwork1
             sw.WriteLine("  </head>");
             sw.WriteLine("  <body>");
 
-            int width = transform.XScale * (knotwork.Cols + 1);
-            int height = transform.YScale * (knotwork.Rows + 1);
+            int width = transform.XOffset + transform.XScale * (knotwork.Cols + 1);
+            int height = transform.YOffset + transform.YScale * (knotwork.Rows + 1);
             sw.WriteLine($"    <svg width=\"{width}\" height=\"{height}\" >");
 
             // I am deliberately NOT using SVG's "transform" option to apply the scaling and the translation.
