@@ -470,8 +470,6 @@ namespace CelticKnotwork1
                 m_extraLines = null;
             }
 
-            //TODO!+ Take in account the "double lines" checkbox.
-
             timer1.Stop();
             knotwork = KnotworkFactory.SampleKnotwork2(nrOfRows, nrOfCols, borderWidth);
             traversalPoint0 = originalPoint0;

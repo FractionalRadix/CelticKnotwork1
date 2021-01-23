@@ -6,19 +6,6 @@ namespace CelticKnotwork1
 {
     static class KnotworkFactory
     {
-        public static Knotwork Translate(Knotwork orig, int delta_rows, int delta_cols)
-        {
-            Knotwork res = new Knotwork(orig.Rows + delta_rows, orig.Cols + delta_cols); //TODO?~ What if rows/cols is negative?
-            var elements = orig.GetAllLines();
-            foreach (var elt in elements)
-            {
-                GridCoordinates coor = elt.Item1;
-                LineSegment l = elt.Item2;
-                res.AddLine(coor.Row + delta_rows, coor.Col + delta_cols, l); //TODO?~ Use a COPY of l? ...why not make this a method of Knotwork and do this in-place....
-            }
-            return res;
-        }
-
         public static Knotwork SampleKnotwork3(int n)
         {
             // For robustness: n should be at least 1.
@@ -252,7 +239,7 @@ namespace CelticKnotwork1
                 knotwork.AddLine(i + 1, i + 2, new DiagonalBackwardDown());
                 // Top right corner.
                 knotwork.AddLine(i + 1, knotwork.Cols - 3 - i, new DiagonalForwardDown());
-                //TODO!+ Lower left corner. Not done yet because some of these lines are already drawn by the bordering code - and that part of the code shouldn't.
+                // Lower left corner. Not done yet because some of these lines are already drawn by the bordering code - and that part of the code shouldn't.
                 knotwork.AddLine(knotwork.Rows - 3 - i, i + 1, new DiagonalForwardDown());
                 // Lower right corner
                 knotwork.AddLine(knotwork.Rows - 3 - i, knotwork.Cols - 2 - i, new DiagonalBackwardDown());
