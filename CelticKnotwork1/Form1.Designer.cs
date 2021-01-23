@@ -39,6 +39,8 @@ namespace CelticKnotwork1
             this.label2 = new System.Windows.Forms.Label();
             this.chbDoubleLines = new System.Windows.Forms.CheckBox();
             this.btnStartDrawing = new System.Windows.Forms.Button();
+            this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            this.btExportToSvg = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lblNrOfRows
@@ -57,7 +59,7 @@ namespace CelticKnotwork1
             this.mtbNrOfRows.Name = "mtbNrOfRows";
             this.mtbNrOfRows.Size = new System.Drawing.Size(100, 23);
             this.mtbNrOfRows.TabIndex = 1;
-            this.mtbNrOfRows.Text = "25";
+            this.mtbNrOfRows.Text = "15";
             this.mtbNrOfRows.ValidatingType = typeof(int);
             // 
             // mtbNrOfColumns
@@ -101,6 +103,8 @@ namespace CelticKnotwork1
             // chbDoubleLines
             // 
             this.chbDoubleLines.AutoSize = true;
+            this.chbDoubleLines.Checked = true;
+            this.chbDoubleLines.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chbDoubleLines.Location = new System.Drawing.Point(78, 140);
             this.chbDoubleLines.Name = "chbDoubleLines";
             this.chbDoubleLines.Size = new System.Drawing.Size(91, 19);
@@ -112,17 +116,28 @@ namespace CelticKnotwork1
             // 
             this.btnStartDrawing.Location = new System.Drawing.Point(78, 178);
             this.btnStartDrawing.Name = "btnStartDrawing";
-            this.btnStartDrawing.Size = new System.Drawing.Size(75, 23);
+            this.btnStartDrawing.Size = new System.Drawing.Size(91, 23);
             this.btnStartDrawing.TabIndex = 7;
-            this.btnStartDrawing.Text = "Start";
+            this.btnStartDrawing.Text = "Draw it!";
             this.btnStartDrawing.UseVisualStyleBackColor = true;
             this.btnStartDrawing.Click += new System.EventHandler(this.btnStartDrawing_Click);
+            // 
+            // btExportToSvg
+            // 
+            this.btExportToSvg.Location = new System.Drawing.Point(78, 253);
+            this.btExportToSvg.Name = "btExportToSvg";
+            this.btExportToSvg.Size = new System.Drawing.Size(91, 23);
+            this.btExportToSvg.TabIndex = 8;
+            this.btExportToSvg.Text = "Export to SVG";
+            this.btExportToSvg.UseVisualStyleBackColor = true;
+            this.btExportToSvg.Click += new System.EventHandler(this.btExportToSvg_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1024, 627);
+            this.Controls.Add(this.btExportToSvg);
             this.Controls.Add(this.btnStartDrawing);
             this.Controls.Add(this.chbDoubleLines);
             this.Controls.Add(this.label2);
@@ -149,6 +164,8 @@ namespace CelticKnotwork1
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox chbDoubleLines;
         private System.Windows.Forms.Button btnStartDrawing;
+        private System.Windows.Forms.SaveFileDialog saveFileDialog1;
+        private System.Windows.Forms.Button btExportToSvg;
     }
 }
 

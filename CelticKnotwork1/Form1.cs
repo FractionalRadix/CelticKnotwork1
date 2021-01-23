@@ -14,15 +14,13 @@ namespace CelticKnotwork1
         private readonly SimpleTransform transform;
 
         private readonly GridCoordinates originalPoint0 = new GridCoordinates { Row = 0, Col = 1 };
-        private readonly GridCoordinates originalPoint1 = new GridCoordinates { Row = 0, Col = 3 };
+        private readonly GridCoordinates originalPoint1 = new GridCoordinates { Row = 1, Col = 2 };
         private GridCoordinates traversalPoint0;
         private GridCoordinates traversalPoint1;
         private bool colorFlipper = true;
         private Pen altPen;
         private double? m_extraLines = 0.2; // null;
 
-        //private String svgFile = "C:\\Gebruikers\\Gebruiker\\Bureaublad\\knotwork.html";
-        private String svgFile = "D:\\knotwork1.html";
         private StreamWriter sw;
 
         public Form1()
@@ -41,8 +39,6 @@ namespace CelticKnotwork1
 
             traversalPoint0 = originalPoint0;
             traversalPoint1 = originalPoint1;
-
-            GenerateSvgInOrderOfTraversal();
 
             this.Paint += Form1_Paint;
             this.timer1.Interval = 100;// WAS: 125;
@@ -67,39 +63,51 @@ namespace CelticKnotwork1
             }
         }
 
-        void GenerateSvgInOrderOfTraversal()
+        void GenerateSvg(StreamWriter sw, bool inOrderOfTraversal)
         {
-            if (File.Exists(svgFile))
-            {
-                File.Delete(svgFile);
-            }
-            sw = File.CreateText(svgFile);
             sw.WriteLine("<!DOCTYPE html>");
             sw.WriteLine("<html>");
             sw.WriteLine("  <head>");
             sw.WriteLine("    <meta charset=\"utf-8\">");
             sw.WriteLine("  </head>");
             sw.WriteLine("  <body>");
-            sw.WriteLine("    <svg width=\"600\" height=\"800\" >"); //TODO!+  Parameterize the size...
-                                                                     // I am deliberately NOT using SVG's "transform" option to apply the scaling and the translation.
-                                                                     // While it might work for the translation, when scaling lines it scales both the size and the WIDTH of the lines - resulting in very broad lines.
+
+            int width = transform.XScale * (knotwork.Cols + 1);
+            int height = transform.YScale * (knotwork.Rows + 1);
+            sw.WriteLine($"    <svg width=\"{width}\" height=\"{height}\" >");
+
+            // I am deliberately NOT using SVG's "transform" option to apply the scaling and the translation.
+            // While it might work for the translation, when scaling lines it scales both the size and the WIDTH of the lines - resulting in very broad lines.
 
             sw.WriteLine("      <g stroke=\"black\" fill=\"none\">");
 
-            bool ready;
-            traversalPoint0 = originalPoint0;
-            traversalPoint1 = originalPoint1;
-
-            do
+            if (inOrderOfTraversal)
             {
-                GridCoordinates tmp = Traverse(traversalPoint0);
-                traversalPoint0 = traversalPoint1;
-                traversalPoint1 = tmp;
+                bool ready;
+                traversalPoint0 = originalPoint0;
+                traversalPoint1 = originalPoint1;
 
-                GenerateSvgForConnection(transform, knotwork, traversalPoint0, traversalPoint1, m_extraLines);
+                do
+                {
+                    GridCoordinates tmp = Traverse(traversalPoint0);
+                    traversalPoint0 = traversalPoint1;
+                    traversalPoint1 = tmp;
 
-                ready = traversalPoint0.Equals(originalPoint0) && traversalPoint1.Equals(traversalPoint1);
-            } while (!ready);
+                    GenerateSvgForConnection(sw, transform, knotwork, traversalPoint0, traversalPoint1, m_extraLines);
+
+                    ready = originalPoint0.Equals(traversalPoint0) && originalPoint1.Equals(traversalPoint1);
+                } while (!ready);
+            }
+            else
+            {
+                var connections = knotwork.GetAllLines();
+                foreach (var connection in connections)
+                {
+                    GridCoordinates source = connection.Item1;
+                    GridCoordinates target = connection.Item2.Target(source);
+                    GenerateSvgForConnection(sw, transform, knotwork, source, target, m_extraLines);
+                }
+            }
 
             sw.WriteLine("      </g>");
             sw.WriteLine("    </svg>");
@@ -109,13 +117,12 @@ namespace CelticKnotwork1
             sw.Close();
         }
 
-
         private void Timer1_Tick(object sender, EventArgs e)
         {
             Graphics g = CreateGraphics();
 
             // Every time you find yourself at the starting line segment, determine which color to use.
-            if (traversalPoint0.Equals(originalPoint0) && traversalPoint1.Equals(traversalPoint1))
+            if (originalPoint0.Equals(traversalPoint0) && originalPoint1.Equals(traversalPoint1))
             {
                 altPen = colorFlipper ? new Pen(Color.Black) : new Pen(Color.DarkGoldenrod);
                 colorFlipper = !colorFlipper;
@@ -349,7 +356,7 @@ namespace CelticKnotwork1
             }
         }
 
-        void GenerateSvgForConnection(SimpleTransform transform, Knotwork knotwork, GridCoordinates p0, GridCoordinates p1, double? extraLines)
+        void GenerateSvgForConnection(StreamWriter sw, SimpleTransform transform, Knotwork knotwork, GridCoordinates p0, GridCoordinates p1, double? extraLines)
         {
             LineSegment l = knotwork.GetLine(p0, p1);
             if (l == null)
@@ -454,23 +461,40 @@ namespace CelticKnotwork1
             int nrOfRows = Int32.Parse(mtbNrOfRows.Text);
             int nrOfCols = Int32.Parse(mtbNrOfColumns.Text);
             int borderWidth = Int32.Parse(mtbBorderWidth.Text);
-            double? doubleLines;
             if (chbDoubleLines.Checked)
             {
-                doubleLines = 0.3;
+                m_extraLines = 0.2;
             }
             else
             {
-                doubleLines = null;
+                m_extraLines = null;
             }
 
             //TODO!+ Take in account the "double lines" checkbox.
 
+            timer1.Stop();
             knotwork = KnotworkFactory.SampleKnotwork2(nrOfRows, nrOfCols, borderWidth);
+            traversalPoint0 = originalPoint0;
+            traversalPoint1 = originalPoint1;
+            colorFlipper = true; // Forces pen to go to black.
 
             //TODO?~ Is this the appropriate way to force a repaint?
             this.Invalidate();
 
+            timer1.Start();
+
+        }
+
+        private void btExportToSvg_Click(object sender, EventArgs e)
+        {
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                Stream outputStream = saveFileDialog1.OpenFile();
+                if (outputStream != null)
+                {
+                    GenerateSvg(new StreamWriter(outputStream), false);
+                }
+            }
         }
     }
 }
